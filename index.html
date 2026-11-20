@@ -1,0 +1,538 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Scent Finder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: sticky filter rail on the left, result cards on the right; reference viewer below. */
+:root{
+  --bg:#F7F6F9; --surface:#FFFFFF; --surface-2:#EFEDF3; --ink:#16151A; --muted:#5D5A68; --line:#DEDBE5;
+  --accent:#5B4BFF; --accent-ink:#FFFFFF; --chip-on:#16151A; --chip-on-ink:#FFFFFF;
+  --display:'Bricolage Grotesque','Arial Narrow',system-ui,sans-serif;
+  --body:'Manrope',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --serif:'Instrument Serif',Georgia,serif;
+  color-scheme:light;
+}
+/* One fixed look: ~70% light page, ~30% dark bands (hero + reference). Dark bands re-scope the same tokens. */
+.dark{
+  --bg:#16151A; --surface:#22202A; --surface-2:#2D2B36; --ink:#F3F1F8; --muted:#ABA7B9; --line:#3A3744;
+  --accent:#B3A9FF; --accent-ink:#16151A; --chip-on:#F3F1F8; --chip-on-ink:#16151A;
+  background:var(--bg); color:var(--ink); color-scheme:dark;
+}
+.dark .toolbar{padding-bottom:36px}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1320px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+
+/* Hero */
+.hero{padding-block:48px 28px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:32px;align-items:end}
+.eyebrow{margin:0 0 10px;font-size:12px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+h1{margin:0;font-family:var(--display);font-weight:800;font-size:clamp(48px,8vw,104px);line-height:.88;letter-spacing:-.045em;text-wrap:balance}
+.lede{margin:14px 0 0;max-width:620px;font-family:var(--serif);font-style:italic;font-size:clamp(20px,2.4vw,26px);line-height:1.2;color:var(--ink)}
+.wheel{width:150px;height:150px;border-radius:50%;position:relative;flex:none}
+.wheel::after{content:"";position:absolute;inset:38px;border-radius:50%;background:var(--bg)}
+.spectrum{display:flex;height:10px;border-radius:999px;overflow:hidden;margin-top:8px}
+.spectrum span{flex:1}
+
+/* Search + presets */
+.toolbar{display:flex;flex-direction:column;gap:14px;padding-block:8px 24px}
+.searchrow{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.search{flex:1 1 320px;min-width:0;display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:0 16px;height:52px}
+.search input{flex:1;min-width:0;border:0;background:transparent;font-size:16px;outline:none}
+.search svg{flex:none;color:var(--muted)}
+.sort{display:flex;align-items:center;gap:8px;height:52px;padding:0 14px;background:var(--surface);border:1px solid var(--line);border-radius:14px}
+.sort label{font-size:13px;color:var(--muted);font-weight:600}
+.sort select{border:0;background:transparent;font-weight:600;outline:none}
+.presets{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.presets .lbl{font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-right:4px}
+.preset{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 14px;font-size:14px;font-weight:600;cursor:pointer}
+.preset:hover{border-color:var(--ink)}
+
+/* Main grid */
+.main{display:grid;grid-template-columns:300px minmax(0,1fr);gap:32px;align-items:start;padding-block:36px 64px}
+.rail{position:sticky;top:16px;max-height:calc(100vh - 32px);overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px 18px 22px}
+.rail-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.rail-head h2{margin:0;font-family:var(--display);font-size:22px;font-weight:800;letter-spacing:-.02em}
+.linkbtn{border:0;background:none;padding:6px 4px;color:var(--accent);font-weight:700;font-size:13px;cursor:pointer}
+.toggle-filters{display:none}
+.group{border-top:1px solid var(--line);padding-top:14px;margin-top:14px}
+.group h3{margin:0 0 4px;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink)}
+.group p.hint{margin:0 0 10px;font-size:12px;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface-2);border-radius:999px;padding:6px 11px;font-size:13px;font-weight:600;cursor:pointer;line-height:1.2}
+.chip:hover{border-color:var(--muted)}
+.chip[aria-pressed="true"]{background:var(--chip-on);color:var(--chip-on-ink);border-color:var(--chip-on)}
+.chip .sw{width:11px;height:11px;border-radius:50%;flex:none;box-shadow:inset 0 0 0 1px rgba(0,0,0,.15)}
+.chip .n{font-weight:500;opacity:.65;font-variant-numeric:tabular-nums}
+
+/* Results */
+.resultbar{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+.count{margin:0;font-family:var(--display);font-size:26px;font-weight:800;letter-spacing:-.02em}
+.active{display:flex;flex-wrap:wrap;gap:6px}
+.active .chip{background:var(--surface);}
+.active .chip::after{content:"×";font-weight:700;opacity:.6;margin-left:2px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.card{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden;min-width:0}
+.swatch{padding:14px 16px 12px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.swatch .fam{margin:0;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+.swatch .pos{margin:0;font-size:12px;font-weight:700;font-variant-numeric:tabular-nums;opacity:.8}
+.body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:10px;flex:1}
+.house{margin:0;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.name{margin:0;font-family:var(--display);font-size:25px;font-weight:800;line-height:1.05;letter-spacing:-.02em;text-wrap:balance}
+.notes{display:flex;flex-wrap:wrap;gap:5px}
+.note{font-size:12.5px;padding:3px 9px;border-radius:999px;background:var(--surface-2);color:var(--ink)}
+.note.hit{background:var(--accent);color:var(--accent-ink)}
+.meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 12px;margin:2px 0 0;padding-top:10px;border-top:1px solid var(--line)}
+.meta div{display:flex;flex-direction:column;min-width:0}
+.meta dt{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.meta dd{margin:0;font-size:13.5px;font-weight:600}
+.dots{letter-spacing:2px}
+.tags{display:flex;flex-wrap:wrap;gap:5px;font-size:12.5px;color:var(--muted)}
+.tags span:not(:last-child)::after{content:"·";margin-left:5px}
+.card-foot{display:flex;justify-content:space-between;align-items:center;margin-top:auto;padding-top:6px}
+.why{font-size:12.5px;color:var(--muted)}
+.more{border:1px solid var(--line);background:transparent;border-radius:999px;padding:7px 12px;font-size:13px;font-weight:700;cursor:pointer}
+.more:hover{border-color:var(--ink)}
+.empty{grid-column:1/-1;background:var(--surface);border:1px dashed var(--line);border-radius:18px;padding:36px 24px;text-align:center}
+.empty h3{margin:0 0 6px;font-family:var(--display);font-size:24px}
+.empty p{margin:0;color:var(--muted)}
+
+/* Reference */
+.ref{padding-block:56px 72px}
+.ref h2{margin:0;font-family:var(--display);font-size:clamp(32px,4vw,48px);font-weight:800;letter-spacing:-.03em}
+.ref .sub{margin:6px 0 22px;color:var(--muted);max-width:640px}
+.ref .sub code{font-size:13px;background:var(--surface-2);padding:1px 6px;border-radius:6px}
+.reflist{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-bottom:18px}
+.refcard{display:flex;flex-direction:column;gap:8px;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;cursor:pointer}
+.refcard:hover{border-color:var(--muted)}
+.refcard[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.refcard .t{font-family:var(--display);font-size:19px;font-weight:800;letter-spacing:-.01em}
+.refcard .d{font-size:13.5px;color:var(--muted)}
+.refcard .bar{display:flex;height:8px;border-radius:999px;overflow:hidden}
+.refcard .bar span{flex:1}
+.refcard.upload{border-style:dashed;justify-content:center}
+.viewer{background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.viewer-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--line)}
+.viewer-head strong{font-size:14px}
+.viewer-head a{color:var(--accent);font-weight:700;font-size:13px}
+.viewer iframe{display:block;width:100%;height:min(80vh,1100px);border:0;background:#fff}
+.placeholder{padding:48px 24px;text-align:center;color:var(--muted)}
+.disclaimer{margin:28px 0 0;font-size:12.5px;color:var(--muted);max-width:760px}
+
+@media (max-width: 900px){
+  .main{grid-template-columns:minmax(0,1fr)}
+  .rail{position:static;max-height:none}
+  .toggle-filters{display:inline-flex}
+  .rail:not([data-open]) .rail-body{display:none}
+  .hero{grid-template-columns:minmax(0,1fr)}
+  .wheel{display:none}
+}
+@media (prefers-reduced-motion: no-preference){
+  .card{transition:transform .15s ease, border-color .15s ease}
+  .card:hover{transform:translateY(-2px);border-color:var(--muted)}
+}
+</style>
+</head>
+<body>
+
+<div class="dark">
+<header class="wrap hero">
+  <div>
+    <p class="eyebrow">Scent Spectrum · Perfume finder</p>
+    <h1>Scent Finder</h1>
+    <p class="lede">Pick a mood, an occasion or a note you love. The list narrows to the perfumes that fit.</p>
+    <div class="spectrum" id="spectrum" aria-hidden="true"></div>
+  </div>
+  <div class="wheel" id="wheel" aria-hidden="true"></div>
+</header>
+
+<section class="wrap toolbar" aria-label="Search and quick picks">
+  <div class="searchrow">
+    <label class="search" for="q">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="q" type="search" placeholder="Search a perfume, house or note — try “vanilla” or “Creed”" autocomplete="off">
+    </label>
+    <div class="sort">
+      <label for="sort">Sort</label>
+      <select id="sort">
+        <option value="match">Best match</option>
+        <option value="pop">Most popular</option>
+        <option value="wheel">Fragrance wheel order</option>
+        <option value="priceAsc">Price: low to high</option>
+        <option value="priceDesc">Price: high to low</option>
+        <option value="strength">Strongest first</option>
+        <option value="light">Lightest first</option>
+        <option value="name">Name A–Z</option>
+      </select>
+    </div>
+  </div>
+  <div class="presets" id="presets"><span class="lbl">Quick picks</span></div>
+</section>
+</div>
+
+<main class="wrap main">
+  <aside class="rail" id="rail" aria-label="Filters">
+    <div class="rail-head">
+      <h2>Filters</h2>
+      <div>
+        <button class="linkbtn toggle-filters" id="toggleFilters" type="button" aria-expanded="false">Show</button>
+        <button class="linkbtn" id="clearAll" type="button">Clear all</button>
+      </div>
+    </div>
+    <div class="rail-body" id="filters"></div>
+  </aside>
+
+  <section aria-live="polite" aria-label="Results">
+    <div class="resultbar">
+      <p class="count" id="count"></p>
+      <div class="active" id="active"></div>
+    </div>
+    <div class="grid" id="grid"></div>
+  </section>
+</main>
+
+<div class="dark">
+<section class="wrap ref" id="reference" aria-labelledby="refTitle">
+  <h2 id="refTitle">Reference posters</h2>
+  <p class="sub">Choose a poster to review it here. The page looks for them in a folder named <code>reference</code> next to this file. You can also open any other PDF from your computer.</p>
+  <div class="reflist" id="reflist"></div>
+  <div class="viewer">
+    <div class="viewer-head">
+      <strong id="viewerTitle">No poster selected</strong>
+      <a id="viewerOpen" href="#reference" target="_blank" rel="noopener" hidden>Open in a new tab ↗</a>
+    </div>
+    <div id="viewerBody"><p class="placeholder">Choose a poster above to preview it.</p></div>
+  </div>
+  <p class="disclaimer">Popularity, strength, longevity and price bands are editorial estimates from community consensus, not live ratings. Strength and longevity vary with skin, climate and concentration. “Marketed as” reflects how the house sells it; anyone can wear anything.</p>
+</section>
+</div>
+
+<input type="file" id="pdfPicker" accept="application/pdf,image/*" hidden>
+
+<script>
+/* ---------- Families (classic fragrance wheel, clockwise) ---------- */
+const FAM = [
+  null,
+  {name:'Aromatic',     group:'Fresh',  color:'#7B8CFF', ink:'#15171F'},
+  {name:'Citrus',       group:'Fresh',  color:'#FFD60A', ink:'#15171F'},
+  {name:'Water',        group:'Fresh',  color:'#22C7E0', ink:'#15171F'},
+  {name:'Green',        group:'Fresh',  color:'#5ED65A', ink:'#15171F'},
+  {name:'Fruity',       group:'Floral', color:'#FF7A5C', ink:'#15171F'},
+  {name:'Floral',       group:'Floral', color:'#FF6FA0', ink:'#15171F'},
+  {name:'Soft floral',  group:'Floral', color:'#C99BFF', ink:'#15171F'},
+  {name:'Floral amber', group:'Floral', color:'#FFA22E', ink:'#15171F'},
+  {name:'Gourmand',     group:'Amber',  color:'#A0521A', ink:'#FBF4EC'},
+  {name:'Woody amber',  group:'Amber',  color:'#8C1C2E', ink:'#FBF4EC'},
+  {name:'Woods',        group:'Woody',  color:'#6B4E16', ink:'#FBF4EC'},
+  {name:'Moss & leather',group:'Woody', color:'#1F4D2E', ink:'#FBF4EC'}
+];
+
+/* ---------- Perfumes ----------
+ f: family index · pop: 5 icon / 4 cult favorite / 3 connoisseur pick
+ int: 1 skin scent / 2 moderate / 3 room-filling · lon: 1 3–5h / 2 5–8h / 3 8h+
+ price: 1 under $75 / 2 $75–150 / 3 $150–250 / 4 $250+ (typical full bottle) · g: M/F/U as marketed */
+const P = [
+ {n:'Sauvage',h:'Dior',f:1,notes:['Bergamot','Sichuan pepper','Ambroxan','Lavender'],mood:['energetic','confident','fresh'],occ:['everyday','nightout','gym'],sea:['spring','summer','autumn'],time:['day','night'],pop:5,int:3,lon:3,price:2,g:'M'},
+ {n:'Bleu de Chanel',h:'Chanel',f:1,notes:['Grapefruit','Ginger','Cedar','Incense'],mood:['confident','elegant','fresh'],occ:['office','everyday','date'],sea:['spring','summer','autumn','winter'],time:['day','night'],pop:5,int:2,lon:2,price:2,g:'M'},
+ {n:'Green Irish Tweed',h:'Creed',f:1,notes:['Lemon verbena','Violet leaf','Sandalwood','Ambergris'],mood:['elegant','clean','calm'],occ:['office','formal','everyday'],sea:['spring','summer'],time:['day'],pop:4,int:2,lon:2,price:4,g:'M'},
+ {n:'Imagination',h:'Louis Vuitton',f:2,notes:['Citron','Ginger','Black tea','Ambroxan'],mood:['fresh','elegant','energetic'],occ:['office','everyday','vacation'],sea:['spring','summer'],time:['day'],pop:4,int:2,lon:2,price:4,g:'M'},
+ {n:'Afternoon Swim',h:'Louis Vuitton',f:2,notes:['Mandarin','Bergamot','Ginger','Ambergris'],mood:['energetic','playful','fresh'],occ:['vacation','everyday'],sea:['summer'],time:['day'],pop:4,int:2,lon:1,price:4,g:'U'},
+ {n:'Colonia',h:'Acqua di Parma',f:2,notes:['Sicilian lemon','Lavender','Rosemary','Rose'],mood:['clean','elegant','calm'],occ:['office','everyday','formal'],sea:['spring','summer'],time:['day'],pop:3,int:1,lon:1,price:3,g:'U'},
+ {n:'Neroli Portofino',h:'Tom Ford',f:2,notes:['Neroli','Bergamot','Orange blossom','Amber'],mood:['fresh','playful','calm'],occ:['vacation','everyday'],sea:['summer'],time:['day'],pop:4,int:1,lon:1,price:4,g:'U'},
+ {n:'Eau Sauvage',h:'Dior',f:2,notes:['Lemon','Basil','Rosemary','Vetiver'],mood:['clean','elegant','calm'],occ:['office','everyday'],sea:['spring','summer'],time:['day'],pop:4,int:1,lon:1,price:2,g:'M'},
+ {n:'Orange Sanguine',h:'Atelier Cologne',f:2,notes:['Blood orange','Geranium','Tonka bean','Sandalwood'],mood:['energetic','playful'],occ:['everyday','vacation','gym'],sea:['spring','summer'],time:['day'],pop:3,int:1,lon:1,price:3,g:'U'},
+ {n:'Acqua di Giò Profumo',h:'Giorgio Armani',f:3,notes:['Sea notes','Bergamot','Incense','Patchouli'],mood:['fresh','confident','calm'],occ:['everyday','office','date'],sea:['spring','summer','autumn'],time:['day','night'],pop:5,int:2,lon:3,price:2,g:'M'},
+ {n:'Light Blue',h:'Dolce & Gabbana',f:3,notes:['Sicilian lemon','Green apple','Cedar','Bamboo'],mood:['fresh','playful','energetic'],occ:['vacation','everyday','gym'],sea:['spring','summer'],time:['day'],pop:5,int:2,lon:1,price:2,g:'F'},
+ {n:'Silver Mountain Water',h:'Creed',f:3,notes:['Green tea','Blackcurrant','Bergamot','Musk'],mood:['clean','calm','fresh'],occ:['office','everyday','gym'],sea:['spring','summer'],time:['day'],pop:3,int:2,lon:2,price:4,g:'U'},
+ {n:'Aqva Pour Homme',h:'Bvlgari',f:3,notes:['Marine algae','Mandarin','Petitgrain','Seaweed'],mood:['fresh','energetic'],occ:['gym','vacation','everyday'],sea:['summer'],time:['day'],pop:3,int:2,lon:1,price:2,g:'M'},
+ {n:'Un Jardin sur le Nil',h:'Hermès',f:4,notes:['Green mango','Lotus','Reeds','Grapefruit'],mood:['calm','fresh','playful'],occ:['office','vacation','everyday'],sea:['spring','summer'],time:['day'],pop:3,int:1,lon:1,price:2,g:'U'},
+ {n:'Philosykos',h:'Diptyque',f:4,notes:['Fig leaf','Fig','Coconut','Cedar'],mood:['calm','cozy','fresh'],occ:['everyday','vacation','office'],sea:['spring','summer'],time:['day'],pop:4,int:2,lon:2,price:3,g:'U'},
+ {n:'Lime Basil & Mandarin',h:'Jo Malone London',f:4,notes:['Lime','Basil','White thyme','Vetiver'],mood:['fresh','clean','energetic'],occ:['everyday','office','gym'],sea:['spring','summer'],time:['day'],pop:4,int:1,lon:1,price:3,g:'U'},
+ {n:'Aventus',h:'Creed',f:5,notes:['Pineapple','Blackcurrant','Birch','Oakmoss'],mood:['confident','energetic'],occ:['date','nightout','office','formal'],sea:['spring','summer','autumn'],time:['day','night'],pop:5,int:3,lon:3,price:4,g:'M'},
+ {n:'Erba Pura',h:'Xerjoff',f:5,notes:['Sicilian orange','Fruits','White musk','Vanilla'],mood:['playful','energetic','sensual'],occ:['nightout','vacation','date'],sea:['spring','summer'],time:['day','night'],pop:4,int:3,lon:3,price:4,g:'U'},
+ {n:'Chance Eau Tendre',h:'Chanel',f:5,notes:['Quince','Grapefruit','Jasmine','White musk'],mood:['playful','romantic','fresh'],occ:['everyday','office','date'],sea:['spring','summer'],time:['day'],pop:5,int:2,lon:2,price:2,g:'F'},
+ {n:'Delina',h:'Parfums de Marly',f:6,notes:['Turkish rose','Lychee','Rhubarb','Vanilla'],mood:['romantic','playful','elegant'],occ:['date','formal','everyday'],sea:['spring','summer'],time:['day','night'],pop:5,int:2,lon:2,price:4,g:'F'},
+ {n:'Bloom',h:'Gucci',f:6,notes:['Tuberose','Jasmine','Rangoon creeper'],mood:['romantic','elegant'],occ:['date','formal','everyday'],sea:['spring','summer'],time:['day'],pop:4,int:2,lon:2,price:2,g:'F'},
+ {n:'Portrait of a Lady',h:'Frédéric Malle',f:6,notes:['Rose','Raspberry','Patchouli','Incense'],mood:['mysterious','elegant','sensual'],occ:['formal','date','nightout'],sea:['autumn','winter'],time:['night'],pop:4,int:3,lon:3,price:4,g:'F'},
+ {n:'N°5',h:'Chanel',f:7,notes:['Aldehydes','Rose','Jasmine','Sandalwood'],mood:['elegant','calm'],occ:['formal','office'],sea:['spring','autumn','winter'],time:['day','night'],pop:5,int:2,lon:2,price:3,g:'F'},
+ {n:"Infusion d'Iris",h:'Prada',f:7,notes:['Iris','Mandarin','Incense','Vetiver'],mood:['clean','calm','elegant'],occ:['office','everyday'],sea:['spring','autumn'],time:['day'],pop:3,int:1,lon:2,price:2,g:'F'},
+ {n:'Dior Homme Intense',h:'Dior',f:7,notes:['Iris','Cocoa','Ambrette','Pear'],mood:['elegant','sensual','cozy'],occ:['date','formal','office'],sea:['autumn','winter'],time:['night'],pop:4,int:2,lon:3,price:2,g:'M'},
+ {n:'Baccarat Rouge 540',h:'Maison Francis Kurkdjian',f:8,notes:['Saffron','Jasmine','Ambergris','Cedar'],mood:['sensual','mysterious','confident'],occ:['nightout','date','formal'],sea:['autumn','winter'],time:['night'],pop:5,int:3,lon:3,price:4,g:'U'},
+ {n:'Libre',h:'Yves Saint Laurent',f:8,notes:['Lavender','Orange blossom','Vanilla','Musk'],mood:['confident','sensual','elegant'],occ:['date','nightout','office'],sea:['spring','autumn','winter'],time:['day','night'],pop:5,int:3,lon:3,price:2,g:'F'},
+ {n:'Flowerbomb',h:'Viktor & Rolf',f:8,notes:['Orchid','Rose','Jasmine','Patchouli'],mood:['playful','romantic','sensual'],occ:['date','nightout'],sea:['autumn','winter'],time:['night'],pop:4,int:3,lon:3,price:2,g:'F'},
+ {n:'Black Orchid',h:'Tom Ford',f:8,notes:['Black truffle','Orchid','Patchouli','Dark chocolate'],mood:['mysterious','sensual'],occ:['nightout','date'],sea:['autumn','winter'],time:['night'],pop:5,int:3,lon:3,price:2,g:'U'},
+ {n:'Tobacco Vanille',h:'Tom Ford',f:9,notes:['Tobacco leaf','Vanilla','Cocoa','Dried fruit'],mood:['cozy','sensual'],occ:['date','nightout','lounge'],sea:['autumn','winter'],time:['night'],pop:5,int:3,lon:3,price:4,g:'U'},
+ {n:'Hypnotic Poison',h:'Dior',f:9,notes:['Bitter almond','Vanilla','Jasmine','Sandalwood'],mood:['mysterious','sensual'],occ:['date','nightout'],sea:['autumn','winter'],time:['night'],pop:4,int:3,lon:3,price:2,g:'F'},
+ {n:"Angels' Share",h:'Kilian Paris',f:9,notes:['Cognac','Cinnamon','Tonka bean','Praline'],mood:['cozy','sensual','playful'],occ:['date','nightout','lounge'],sea:['autumn','winter'],time:['night'],pop:5,int:3,lon:3,price:4,g:'U'},
+ {n:'Replica Jazz Club',h:'Maison Margiela',f:9,notes:['Rum','Tobacco leaf','Vanilla','Pink pepper'],mood:['cozy','calm','sensual'],occ:['lounge','date','everyday'],sea:['autumn','winter'],time:['night'],pop:4,int:2,lon:2,price:2,g:'M'},
+ {n:'Black Opium',h:'Yves Saint Laurent',f:9,notes:['Coffee','Vanilla','White flowers','Pear'],mood:['playful','sensual'],occ:['nightout','date'],sea:['autumn','winter'],time:['night'],pop:5,int:3,lon:3,price:2,g:'F'},
+ {n:'Ombre Nomade',h:'Louis Vuitton',f:10,notes:['Oud','Benzoin','Raspberry','Incense'],mood:['mysterious','confident'],occ:['formal','nightout'],sea:['autumn','winter'],time:['night'],pop:4,int:3,lon:3,price:4,g:'U'},
+ {n:'Oud Wood',h:'Tom Ford',f:10,notes:['Oud','Rosewood','Cardamom','Sandalwood'],mood:['elegant','calm','mysterious'],occ:['office','formal','date'],sea:['autumn','winter'],time:['day','night'],pop:5,int:2,lon:2,price:4,g:'U'},
+ {n:'Grand Soir',h:'Maison Francis Kurkdjian',f:10,notes:['Amber','Benzoin','Tonka bean','Vanilla'],mood:['cozy','sensual','elegant'],occ:['date','formal','lounge'],sea:['autumn','winter'],time:['night'],pop:4,int:3,lon:3,price:4,g:'U'},
+ {n:'Plum Japonais',h:'Tom Ford',f:10,notes:['Plum','Cinnamon bark','Oud','Immortelle'],mood:['mysterious','sensual','cozy'],occ:['date','formal'],sea:['autumn','winter'],time:['night'],pop:3,int:3,lon:3,price:4,g:'U'},
+ {n:'Santal 33',h:'Le Labo',f:11,notes:['Sandalwood','Cardamom','Violet','Leather'],mood:['calm','confident','cozy'],occ:['everyday','office','date'],sea:['spring','summer','autumn','winter'],time:['day','night'],pop:5,int:2,lon:3,price:4,g:'U'},
+ {n:"Terre d'Hermès",h:'Hermès',f:11,notes:['Orange','Grapefruit','Vetiver','Flint'],mood:['confident','calm','elegant'],occ:['office','everyday','formal'],sea:['spring','summer','autumn'],time:['day'],pop:5,int:2,lon:2,price:2,g:'M'},
+ {n:'Vétiver',h:'Guerlain',f:11,notes:['Vetiver','Tobacco','Nutmeg','Citrus'],mood:['clean','elegant','calm'],occ:['office','everyday','formal'],sea:['spring','summer','autumn'],time:['day'],pop:4,int:2,lon:2,price:2,g:'M'},
+ {n:'Féminité du Bois',h:'Serge Lutens',f:11,notes:['Cedar','Plum','Cinnamon','Honey'],mood:['cozy','mysterious','calm'],occ:['everyday','date'],sea:['autumn','winter'],time:['day','night'],pop:3,int:2,lon:2,price:3,g:'U'},
+ {n:'Ombré Leather',h:'Tom Ford',f:12,notes:['Leather','Cardamom','Jasmine','Patchouli'],mood:['confident','sensual','mysterious'],occ:['nightout','date','everyday'],sea:['autumn','winter'],time:['day','night'],pop:5,int:3,lon:3,price:3,g:'U'},
+ {n:'Fahrenheit',h:'Dior',f:12,notes:['Leather','Violet leaf','Nutmeg','Cedar'],mood:['mysterious','confident'],occ:['nightout','everyday'],sea:['autumn','winter'],time:['day','night'],pop:4,int:3,lon:3,price:2,g:'M'},
+ {n:'Cuir de Russie',h:'Chanel',f:12,notes:['Birch tar','Iris','Aldehydes','Jasmine'],mood:['elegant','mysterious'],occ:['formal','date'],sea:['autumn','winter'],time:['night'],pop:3,int:2,lon:3,price:3,g:'U'},
+ {n:'Mitsouko',h:'Guerlain',f:12,notes:['Peach','Oakmoss','Spices','Rose'],mood:['mysterious','elegant'],occ:['formal','date'],sea:['autumn'],time:['day','night'],pop:3,int:2,lon:3,price:2,g:'F'},
+ {n:'Encre Noire',h:'Lalique',f:12,notes:['Vetiver','Cypress','Musk','Cashmere wood'],mood:['mysterious','calm'],occ:['office','nightout','everyday'],sea:['autumn','winter'],time:['day','night'],pop:3,int:2,lon:2,price:1,g:'M'},
+ {n:'Y Eau de Parfum',h:'Yves Saint Laurent',f:1,notes:['Apple','Ginger','Sage','Amberwood'],mood:['energetic','confident','fresh'],occ:['everyday','nightout','office'],sea:['spring','summer','autumn','winter'],time:['day','night'],pop:5,int:3,lon:3,price:2,g:'M'},
+ {n:'Le Male Elixir',h:'Jean Paul Gaultier',f:1,notes:['Mint','Lavender','Vanilla','Tonka bean'],mood:['sensual','playful','confident'],occ:['nightout','date'],sea:['autumn','winter'],time:['night'],pop:5,int:3,lon:3,price:2,g:'M'},
+ {n:'Allure Homme Sport',h:'Chanel',f:3,notes:['Orange','Sea notes','Tonka bean','White musk'],mood:['fresh','energetic','clean'],occ:['gym','everyday','vacation'],sea:['spring','summer'],time:['day'],pop:4,int:2,lon:2,price:2,g:'M'},
+ {n:'Coco Mademoiselle',h:'Chanel',f:6,notes:['Orange','Rose','Patchouli','Vanilla'],mood:['elegant','confident','romantic'],occ:['office','date','formal'],sea:['spring','summer','autumn','winter'],time:['day','night'],pop:5,int:3,lon:3,price:3,g:'F'},
+ {n:"L'Homme",h:'Prada',f:7,notes:['Iris','Neroli','Amber','Cedar'],mood:['clean','elegant','calm'],occ:['office','everyday','formal'],sea:['spring','summer','autumn','winter'],time:['day'],pop:4,int:1,lon:2,price:2,g:'M'},
+ {n:'Replica Lazy Sunday Morning',h:'Maison Margiela',f:7,notes:['Lily of the valley','Pear','Iris','White musk'],mood:['clean','calm'],occ:['everyday','office','lounge'],sea:['spring','summer'],time:['day'],pop:4,int:1,lon:1,price:2,g:'U'},
+ {n:'Layton',h:'Parfums de Marly',f:9,notes:['Apple','Lavender','Cardamom','Vanilla'],mood:['cozy','confident','sensual'],occ:['date','nightout','formal'],sea:['autumn','winter'],time:['night'],pop:5,int:3,lon:3,price:4,g:'M'},
+ {n:'La Vie Est Belle',h:'Lancôme',f:9,notes:['Iris','Pear','Praline','Vanilla'],mood:['playful','romantic','cozy'],occ:['date','everyday','nightout'],sea:['spring','autumn','winter'],time:['day','night'],pop:5,int:3,lon:3,price:2,g:'F'},
+ {n:'Good Girl',h:'Carolina Herrera',f:9,notes:['Tuberose','Cocoa','Tonka bean','Coffee'],mood:['sensual','confident','playful'],occ:['nightout','date'],sea:['autumn','winter'],time:['night'],pop:5,int:3,lon:3,price:2,g:'F'},
+ {n:'Cloud',h:'Ariana Grande',f:9,notes:['Lavender','Pear','Praline','Whipped cream'],mood:['playful','cozy'],occ:['everyday','date','lounge'],sea:['spring','autumn','winter'],time:['day','night'],pop:4,int:2,lon:2,price:1,g:'F'},
+ {n:'Oud for Greatness',h:'Initio',f:10,notes:['Oud','Saffron','Nutmeg','Lavender'],mood:['mysterious','confident'],occ:['nightout','formal'],sea:['autumn','winter'],time:['night'],pop:4,int:3,lon:3,price:4,g:'U'},
+ {n:'Gypsy Water',h:'Byredo',f:11,notes:['Bergamot','Juniper','Pine needles','Sandalwood'],mood:['calm','cozy','clean'],occ:['everyday','office'],sea:['spring','autumn'],time:['day'],pop:4,int:1,lon:1,price:4,g:'U'},
+ {n:'Explorer',h:'Montblanc',f:11,notes:['Bergamot','Pink pepper','Vetiver','Leather'],mood:['confident','energetic'],occ:['everyday','office','nightout'],sea:['spring','autumn'],time:['day','night'],pop:4,int:2,lon:2,price:1,g:'M'}
+];
+
+/* ---------- Note groups (substring match on a perfume's notes) ---------- */
+const NOTE_GROUPS = {
+  citrus:['lemon','lime','orange','mandarin','grapefruit','citron','bergamot','neroli','citrus','petitgrain','verbena'],
+  marine:['sea','marine','algae','seaweed'],
+  green:['fig','violet leaf','green','reeds','bamboo','lotus','basil','thyme','juniper','pine'],
+  tea:['tea'],
+  herbs:['lavender','rosemary','basil','thyme','geranium','mint','sage'],
+  fruit:['pineapple','blackcurrant','apple','lychee','raspberry','peach','plum','pear','quince','fruit','rhubarb','mango'],
+  rose:['rose'],
+  white:['jasmine','tuberose','orange blossom','white flowers','orchid','creeper','lily'],
+  iris:['iris','violet','aldehyde'],
+  spice:['pepper','ginger','cardamom','cinnamon','nutmeg','saffron','spices'],
+  vanilla:['vanilla','tonka'],
+  sweet:['cocoa','coffee','chocolate','praline','almond','honey','coconut','dried fruit','cream'],
+  boozy:['rum','cognac'],
+  tobacco:['tobacco'],
+  woods:['cedar','sandalwood','cypress','rosewood','cashmere wood'],
+  vetiver:['vetiver'],
+  oud:['oud'],
+  amber:['amber','benzoin','incense','ambroxan','ambergris','immortelle'],
+  leather:['leather','birch','flint'],
+  musk:['musk','ambrette'],
+  earthy:['patchouli','oakmoss','truffle']
+};
+
+/* ---------- Filter dimensions ---------- */
+const DIMS = [
+  {key:'mood', field:'mood', label:'Mood', hint:'How do you want to feel?', opts:[
+    ['fresh','Fresh'],['clean','Clean'],['energetic','Energetic'],['calm','Calm'],['playful','Playful'],['romantic','Romantic'],
+    ['elegant','Elegant'],['confident','Confident'],['cozy','Cozy'],['sensual','Sensual'],['mysterious','Mysterious']]},
+  {key:'occ', field:'occ', label:'Occasion', hint:'Where are you wearing it?', opts:[
+    ['everyday','Everyday'],['office','Office'],['date','Date night'],['nightout','Night out'],['formal','Formal / wedding'],
+    ['vacation','Vacation'],['gym','Gym & outdoors'],['lounge','Cozy at home']]},
+  {key:'sea', field:'sea', label:'Season', opts:[['spring','Spring'],['summer','Summer'],['autumn','Autumn'],['winter','Winter']]},
+  {key:'time', field:'time', label:'Time of day', opts:[['day','Day'],['night','Night']]},
+  {key:'fam', field:'f', label:'Scent family', hint:'Neighbours on the wheel smell related.', opts: FAM.slice(1).map((x,i)=>[String(i+1), x.name])},
+  {key:'notes', field:'notes', label:'Notes you love', hint:'Shows perfumes with any of these.', opts:[
+    ['citrus','Citrus'],['marine','Marine'],['green','Green & herbal'],['tea','Tea'],['herbs','Lavender & herbs'],['fruit','Fruit'],
+    ['rose','Rose'],['white','White flowers'],['iris','Iris & powder'],['spice','Spice'],['vanilla','Vanilla & tonka'],['sweet','Coffee, cocoa & sweets'],
+    ['boozy','Boozy'],['tobacco','Tobacco'],['woods','Woods'],['vetiver','Vetiver'],['oud','Oud'],['amber','Amber & incense'],
+    ['leather','Leather & smoke'],['musk','Musk'],['earthy','Patchouli & moss']]},
+  {key:'pop', field:'pop', label:'Popularity', opts:[['5','Icon'],['4','Cult favorite'],['3','Connoisseur pick']]},
+  {key:'int', field:'int', label:'Strength (projection)', opts:[['1','Skin scent'],['2','Moderate'],['3','Room-filling']]},
+  {key:'lon', field:'lon', label:'Longevity', opts:[['1','3–5 hours'],['2','5–8 hours'],['3','8+ hours']]},
+  {key:'price', field:'price', label:'Budget (full bottle)', opts:[['1','Under $75'],['2','$75–150'],['3','$150–250'],['4','$250+']]},
+  {key:'g', field:'g', label:'Marketed as', opts:[['M','Masculine'],['F','Feminine'],['U','Unisex']]}
+];
+const LABEL = {}; DIMS.forEach(d=>{LABEL[d.key]={}; d.opts.forEach(([v,l])=>LABEL[d.key][v]=l);});
+
+const PRESETS = [
+  {label:'Office-safe', set:{occ:['office'], int:['1','2']}},
+  {label:'Date night', set:{occ:['date'], time:['night']}},
+  {label:'Summer heat', set:{sea:['summer'], mood:['fresh']}},
+  {label:'Cozy winter', set:{sea:['winter'], mood:['cozy']}},
+  {label:'Safe blind buys', set:{pop:['5'], int:['2']}},
+  {label:'Long-lasting beasts', set:{int:['3'], lon:['3']}},
+  {label:'Under $150', set:{price:['1','2']}},
+  {label:'Unisex niche', set:{g:['U'], price:['4']}}
+];
+
+/* ---------- State ---------- */
+const state = {q:'', sort:'match', sel:{}};
+DIMS.forEach(d=>state.sel[d.key]=new Set());
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const vals = (p, d) => { const v = p[d.field]; return Array.isArray(v) ? v.map(String) : [String(v)]; };
+const noteHit = (note, groups) => { const n = note.toLowerCase(); return groups.some(g => NOTE_GROUPS[g].some(t => n.includes(t))); };
+
+function matches(p){
+  for (const d of DIMS){
+    const s = state.sel[d.key]; if (!s.size) continue;
+    if (d.key === 'notes'){ if (!p.notes.some(n => noteHit(n, [...s]))) return false; continue; }
+    if (!vals(p,d).some(v => s.has(v))) return false;
+  }
+  if (state.q){
+    const q = state.q.toLowerCase();
+    const hay = [p.n, p.h, FAM[p.f].name, FAM[p.f].group, ...p.notes, ...p.mood].join(' ').toLowerCase();
+    if (!q.split(/\s+/).every(t => hay.includes(t))) return false;
+  }
+  return true;
+}
+function score(p){
+  let s = 0;
+  ['mood','occ','sea','time'].forEach(k => { state.sel[k].forEach(v => { if (p[DIMS.find(d=>d.key===k).field].includes(v)) s += 2; }); });
+  if (state.sel.notes.size) s += p.notes.filter(n => noteHit(n, [...state.sel.notes])).length * 1.5;
+  return s + p.pop * .4;
+}
+const SORTS = {
+  match:(a,b)=>score(b)-score(a) || a.n.localeCompare(b.n),
+  pop:(a,b)=>b.pop-a.pop || a.n.localeCompare(b.n),
+  wheel:(a,b)=>a.f-b.f || b.pop-a.pop,
+  priceAsc:(a,b)=>a.price-b.price || b.pop-a.pop,
+  priceDesc:(a,b)=>b.price-a.price || b.pop-a.pop,
+  strength:(a,b)=>(b.int+b.lon)-(a.int+a.lon) || b.pop-a.pop,
+  light:(a,b)=>(a.int+a.lon)-(b.int+b.lon) || b.pop-a.pop,
+  name:(a,b)=>a.n.localeCompare(b.n)
+};
+
+/* ---------- Render: filters ---------- */
+function countFor(d, v){
+  // how many results you'd get with this option toggled on (within current other filters)
+  const s = state.sel[d.key]; const had = s.has(v);
+  if (!had) s.add(v);
+  const saved = new Set(s); if (!had){ s.clear(); s.add(v); }
+  const n = P.filter(matches).length;
+  s.clear(); saved.forEach(x=>s.add(x)); if (!had) s.delete(v);
+  return n;
+}
+function renderFilters(){
+  $('#filters').innerHTML = DIMS.map(d => `
+    <div class="group">
+      <h3>${d.label}</h3>${d.hint ? `<p class="hint">${d.hint}</p>` : ''}
+      <div class="chips">${d.opts.map(([v,l]) => {
+        const on = state.sel[d.key].has(v);
+        const sw = d.key==='fam' ? `<span class="sw" style="background:${FAM[+v].color}"></span>` : '';
+        return `<button type="button" class="chip" data-dim="${d.key}" data-val="${esc(v)}" aria-pressed="${on}">${sw}${esc(l)}${on ? '' : ` <span class="n">${countFor(d,v)}</span>`}</button>`;
+      }).join('')}</div>
+    </div>`).join('');
+}
+
+/* ---------- Render: results ---------- */
+const dots = n => '●'.repeat(n) + '○'.repeat(3-n);
+const POP = {5:'Icon',4:'Cult favorite',3:'Connoisseur pick'};
+function card(p){
+  const fam = FAM[p.f];
+  const hitGroups = [...state.sel.notes];
+  const reasons = [];
+  ['mood','occ'].forEach(k => state.sel[k].forEach(v => { if (p[k].includes(v)) reasons.push(LABEL[k][v]); }));
+  return `<article class="card">
+    <div class="swatch" style="background:${fam.color};color:${fam.ink}">
+      <p class="fam">${fam.group} · ${fam.name}</p><p class="pos">${String(p.f).padStart(2,'0')}/12</p>
+    </div>
+    <div class="body">
+      <div><p class="house">${esc(p.h)}</p><h3 class="name">${esc(p.n)}</h3></div>
+      <div class="notes">${p.notes.map(n => `<span class="note${hitGroups.length && noteHit(n,hitGroups) ? ' hit' : ''}">${esc(n)}</span>`).join('')}</div>
+      <div class="tags">${p.mood.map(m => `<span>${LABEL.mood[m]}</span>`).join('')}</div>
+      <dl class="meta">
+        <div><dt>Popularity</dt><dd>${POP[p.pop]}</dd></div>
+        <div><dt>Budget</dt><dd>${'$'.repeat(p.price)} <span style="color:var(--muted);font-weight:500">${LABEL.price[p.price]}</span></dd></div>
+        <div><dt>Strength</dt><dd><span class="dots" aria-hidden="true">${dots(p.int)}</span> ${LABEL.int[p.int]}</dd></div>
+        <div><dt>Lasts</dt><dd><span class="dots" aria-hidden="true">${dots(p.lon)}</span> ${LABEL.lon[p.lon]}</dd></div>
+        <div><dt>Best for</dt><dd>${p.occ.slice(0,3).map(o=>LABEL.occ[o]).join(', ')}</dd></div>
+        <div><dt>Season · time</dt><dd>${p.sea.length===4 ? 'Year-round' : p.sea.map(s=>LABEL.sea[s]).join(', ')} · ${p.time.map(t=>LABEL.time[t]).join(' & ')}</dd></div>
+      </dl>
+      <div class="card-foot">
+        <span class="why">${reasons.length ? 'Matches: ' + esc(reasons.join(', ')) : esc(LABEL.g[p.g])}</span>
+        <button type="button" class="more" data-like="${p.f}">More like this</button>
+      </div>
+    </div>
+  </article>`;
+}
+function renderResults(){
+  const list = P.filter(matches).sort(SORTS[state.sort]);
+  $('#count').textContent = `${list.length} ${list.length===1 ? 'perfume' : 'perfumes'}`;
+  const act = [];
+  DIMS.forEach(d => state.sel[d.key].forEach(v => act.push(`<button type="button" class="chip" data-dim="${d.key}" data-val="${esc(v)}" aria-label="Remove ${esc(LABEL[d.key][v])}">${esc(LABEL[d.key][v])}</button>`)));
+  if (state.q) act.push(`<button type="button" class="chip" data-clearq="1" aria-label="Clear search">“${esc(state.q)}”</button>`);
+  $('#active').innerHTML = act.join('');
+  $('#grid').innerHTML = list.length ? list.map(card).join('') :
+    `<div class="empty"><h3>Nothing fits every filter</h3><p>Remove one of the filters above, or use Clear all to start over.</p></div>`;
+  const n = act.length; $('#toggleFilters').textContent = n ? `Show (${n})` : 'Show';
+}
+function render(){ renderFilters(); renderResults(); }
+
+/* ---------- Events ---------- */
+document.addEventListener('click', e => {
+  const chip = e.target.closest('[data-dim]');
+  if (chip){ const s = state.sel[chip.dataset.dim], v = chip.dataset.val; s.has(v) ? s.delete(v) : s.add(v); render(); return; }
+  if (e.target.closest('[data-clearq]')){ state.q=''; $('#q').value=''; render(); return; }
+  const like = e.target.closest('[data-like]');
+  if (like){
+    const f = +like.dataset.like; DIMS.forEach(d=>state.sel[d.key].clear()); state.q=''; $('#q').value='';
+    [f-1,f,f+1].map(x => ((x-1+12)%12)+1).forEach(x => state.sel.fam.add(String(x)));
+    state.sort='wheel'; $('#sort').value='wheel'; render();
+    document.querySelector('.resultbar').scrollIntoView({behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block:'start'});
+    return;
+  }
+});
+$('#q').addEventListener('input', e => { state.q = e.target.value.trim(); render(); });
+$('#sort').addEventListener('change', e => { state.sort = e.target.value; renderResults(); });
+$('#clearAll').addEventListener('click', () => { DIMS.forEach(d=>state.sel[d.key].clear()); state.q=''; $('#q').value=''; render(); });
+$('#toggleFilters').addEventListener('click', () => {
+  const r = $('#rail'); const open = !r.hasAttribute('data-open');
+  open ? r.setAttribute('data-open','') : r.removeAttribute('data-open');
+  $('#toggleFilters').setAttribute('aria-expanded', String(open));
+});
+PRESETS.forEach(p => {
+  const b = document.createElement('button'); b.type='button'; b.className='preset'; b.textContent=p.label;
+  b.addEventListener('click', () => { DIMS.forEach(d=>state.sel[d.key].clear()); Object.entries(p.set).forEach(([k,vs]) => vs.forEach(v=>state.sel[k].add(v))); render(); });
+  $('#presets').appendChild(b);
+});
+
+/* ---------- Decorative wheel + spectrum ---------- */
+const cols = FAM.slice(1).map(f=>f.color);
+$('#wheel').style.background = `conic-gradient(${cols.map((c,i)=>`${c} ${i*30}deg ${(i+1)*30}deg`).join(',')})`;
+$('#spectrum').innerHTML = cols.map(c=>`<span style="background:${c}"></span>`).join('');
+
+/* ---------- Reference posters ---------- */
+const REFS = [
+  {file:'Scent Spectrum — 12 families.pdf', title:'Scent Spectrum — 12 families', desc:'36 perfumes on the fragrance wheel: fresh, floral, amber and woody.', colors:cols},
+  {file:'Scent Spectrum — color field.pdf', title:'Scent Spectrum — color field', desc:'27 perfumes on a light (blue → orange) and dark (brown → deep red) scale.', colors:['#4A90FF','#19C3B1','#4CC85E','#F2C230','#FF7F27','#4E2C1C','#A65A1C','#B0163C','#5C0B20']}
+];
+let blobUrl = null;
+function showRef(src, title){
+  $('#viewerTitle').textContent = title;
+  const a = $('#viewerOpen'); a.href = src; a.hidden = false;
+  $('#viewerBody').innerHTML = '';
+  const fr = document.createElement('iframe'); fr.src = src; fr.title = title;
+  $('#viewerBody').appendChild(fr);
+  document.querySelectorAll('.refcard').forEach(c => c.setAttribute('aria-pressed', String(c.dataset.src === src)));
+}
+$('#reflist').innerHTML = REFS.map(r => {
+  const src = 'reference/' + encodeURIComponent(r.file);
+  return `<button type="button" class="refcard" data-src="${src}" data-title="${esc(r.title)}" aria-pressed="false">
+    <span class="bar" aria-hidden="true">${r.colors.map(c=>`<span style="background:${c}"></span>`).join('')}</span>
+    <span class="t">${esc(r.title)}</span><span class="d">${esc(r.desc)}</span>
+    <span class="d" style="font-size:12px">reference/${esc(r.file)}</span>
+  </button>`;
+}).join('') + `<button type="button" class="refcard upload" id="pickBtn"><span class="t">Open another file…</span><span class="d">Choose a PDF or image from your computer to view it here.</span></button>`;
+$('#reflist').addEventListener('click', e => {
+  const c = e.target.closest('.refcard'); if (!c) return;
+  if (c.id === 'pickBtn'){ $('#pdfPicker').click(); return; }
+  showRef(c.dataset.src, c.dataset.title);
+});
+$('#pdfPicker').addEventListener('change', e => {
+  const f = e.target.files && e.target.files[0]; if (!f) return;
+  if (blobUrl) URL.revokeObjectURL(blobUrl);
+  blobUrl = URL.createObjectURL(f); showRef(blobUrl, f.name);
+});
+
+render();
+</script>
+</body>
+</html>
