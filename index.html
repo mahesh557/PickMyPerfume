@@ -3,15 +3,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Scent Finder</title>
+<title>Pick My Perfume</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700&display=swap">
 <style>
 /* Layout: sticky filter rail on the left, result cards on the right; reference viewer below. */
 :root{
-  --bg:#F7F6F9; --surface:#FFFFFF; --surface-2:#EFEDF3; --ink:#16151A; --muted:#5D5A68; --line:#DEDBE5;
-  --accent:#5B4BFF; --accent-ink:#FFFFFF; --chip-on:#16151A; --chip-on-ink:#FFFFFF;
+  /* Light: the room around the panel — warm white walls, greige ceramic, charcoal text.
+     Accent: deep slate-teal, oak's complement (the cool partner to the orange-brown wood). */
+  --bg:#EFEDE9; --surface:#FBFAF8; --surface-2:#E7E3DD; --ink:#2A2522; --muted:#665F59; --line:#DAD5CE;
+  --accent:#36596A; --accent-ink:#FFFFFF; --chip-on:#36596A; --chip-on-ink:#FFFFFF;
   --display:'Bricolage Grotesque','Arial Narrow',system-ui,sans-serif;
   --body:'Manrope',system-ui,-apple-system,'Segoe UI',sans-serif;
   --serif:'Instrument Serif',Georgia,serif;
@@ -19,10 +21,21 @@
 }
 /* One fixed look: ~70% light page, ~30% dark bands (hero + reference). Dark bands re-scope the same tokens. */
 .dark{
-  --bg:#16151A; --surface:#22202A; --surface-2:#2D2B36; --ink:#F3F1F8; --muted:#ABA7B9; --line:#3A3744;
-  --accent:#B3A9FF; --accent-ink:#16151A; --chip-on:#F3F1F8; --chip-on-ink:#16151A;
-  background:var(--bg); color:var(--ink); color-scheme:dark;
+  /* Oak bands (header + reference): solid oak panelling — vertical planks, dark grooves, soft lamp glow.
+     Accent: the lamp-shade linen. */
+  --bg:#86552F; --surface:#6A4024; --surface-2:#764A2C; --ink:#FFF8EE; --muted:#F6E7D4; --line:#A47650;
+  --accent:#F2E5D0; --accent-ink:#3A2414; --chip-on:#F2E5D0; --chip-on-ink:#3A2414;
+  background-color:var(--bg); color:var(--ink); color-scheme:dark;
+  background-image:
+    radial-gradient(ellipse 60% 90% at 92% 15%, rgba(255,214,160,.22), transparent 70%),
+    repeating-linear-gradient(90deg, transparent 0 158px, rgba(38,20,8,.75) 158px 160px),
+    repeating-linear-gradient(90deg, rgba(255,226,190,.05) 0 160px, rgba(0,0,0,.06) 160px 320px, rgba(255,226,190,0) 320px 480px, rgba(0,0,0,.03) 480px 640px),
+    repeating-linear-gradient(91deg, rgba(60,30,10,.09) 0 1px, transparent 1px 6px, rgba(255,230,200,.04) 6px 7px, transparent 7px 17px),
+    linear-gradient(180deg, rgba(255,230,200,.06), rgba(0,0,0,.10));
 }
+.dark .search input::placeholder{color:#F6E7D4;opacity:.85}
+.dark .search,.dark .sort,.dark .preset,.dark .refcard,.dark .viewer{border-color:rgba(255,240,220,.22)}
+.rail,.card,.empty{box-shadow:0 1px 0 #DAD5CE, 0 10px 30px -20px rgba(58,36,20,.35)}
 .dark .toolbar{padding-bottom:36px}
 *{box-sizing:border-box}
 html,body{margin:0}
@@ -146,7 +159,7 @@ h1{margin:0;font-family:var(--display);font-weight:800;font-size:clamp(48px,8vw,
 <header class="wrap hero">
   <div>
     <p class="eyebrow">Scent Spectrum · Perfume finder</p>
-    <h1>Scent Finder</h1>
+    <h1>Pick My Perfume</h1>
     <p class="lede">Pick a mood, an occasion or a note you love. The list narrows to the perfumes that fit.</p>
     <div class="spectrum" id="spectrum" aria-hidden="true"></div>
   </div>
