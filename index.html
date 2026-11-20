@@ -10,32 +10,34 @@
 <style>
 /* Layout: sticky filter rail on the left, result cards on the right; reference viewer below. */
 :root{
-  /* Light: the room around the panel — warm white walls, greige ceramic, charcoal text.
-     Accent: deep slate-teal, oak's complement (the cool partner to the orange-brown wood). */
-  --bg:#EFEDE9; --surface:#FBFAF8; --surface-2:#E7E3DD; --ink:#2A2522; --muted:#665F59; --line:#DAD5CE;
-  --accent:#36596A; --accent-ink:#FFFFFF; --chip-on:#36596A; --chip-on-ink:#FFFFFF;
+  /* White-ish warm page, espresso text, cognac accents. */
+  --bg:#FDFBF8; --surface:#FFFFFF; --surface-2:#F6F1EB; --ink:#25221F; --muted:#6E665E; --line:#E6DDD2;
+  --accent:#7B4938; --accent-ink:#FFF9EF; --chip-on:#372E29; --chip-on-ink:#FFF9EF;
   --display:'Bricolage Grotesque','Arial Narrow',system-ui,sans-serif;
   --body:'Manrope',system-ui,-apple-system,'Segoe UI',sans-serif;
   --serif:'Instrument Serif',Georgia,serif;
   color-scheme:light;
 }
-/* One fixed look: ~70% light page, ~30% dark bands (hero + reference). Dark bands re-scope the same tokens. */
+/* One fixed look: ~70% white-ish page, ~30% light gradient bands (hero + reference): champagne → soft blush → sand. */
 .dark{
-  /* Oak bands (header + reference): solid oak panelling — vertical planks, dark grooves, soft lamp glow.
-     Accent: the lamp-shade linen. */
-  --bg:#86552F; --surface:#6A4024; --surface-2:#764A2C; --ink:#FFF8EE; --muted:#F6E7D4; --line:#A47650;
-  --accent:#F2E5D0; --accent-ink:#3A2414; --chip-on:#F2E5D0; --chip-on-ink:#3A2414;
-  background-color:var(--bg); color:var(--ink); color-scheme:dark;
-  background-image:
-    radial-gradient(ellipse 60% 90% at 92% 15%, rgba(255,214,160,.22), transparent 70%),
-    repeating-linear-gradient(90deg, transparent 0 158px, rgba(38,20,8,.75) 158px 160px),
-    repeating-linear-gradient(90deg, rgba(255,226,190,.05) 0 160px, rgba(0,0,0,.06) 160px 320px, rgba(255,226,190,0) 320px 480px, rgba(0,0,0,.03) 480px 640px),
-    repeating-linear-gradient(91deg, rgba(60,30,10,.09) 0 1px, transparent 1px 6px, rgba(255,230,200,.04) 6px 7px, transparent 7px 17px),
-    linear-gradient(180deg, rgba(255,230,200,.06), rgba(0,0,0,.10));
+  --bg:#F3E6D9; --surface:#FFFDFA; --surface-2:#F8EFE6; --ink:#25221F; --muted:#665A50; --line:#E2CFBD;
+  --accent:#7B4938; --accent-ink:#FFF9EF; --chip-on:#7B4938; --chip-on-ink:#FFF9EF;
+  background-color:var(--bg); color:var(--ink);
+  background-image:linear-gradient(115deg, #F7EADB 0%, #F2DDD3 45%, #EEDFCC 100%);
 }
-.dark .search input::placeholder{color:#F6E7D4;opacity:.85}
-.dark .search,.dark .sort,.dark .preset,.dark .refcard,.dark .viewer{border-color:rgba(255,240,220,.22)}
-.rail,.card,.empty{box-shadow:0 1px 0 #DAD5CE, 0 10px 30px -20px rgba(58,36,20,.35)}
+body > .dark:first-child{border-bottom:1px solid #E2CFBD}
+main + .dark{border-top:1px solid #E2CFBD}
+.dark .preset:hover{background:#FFFDFA;border-color:#B58A54}
+.dark .eyebrow{color:#7B4938}
+.search input::placeholder{color:#978E84}
+.search:focus-within,.sort:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(123,73,56,.12)}
+.search input:focus-visible,.sort select:focus-visible{outline:none}
+.chip:hover{border-color:#BDAE9C}
+.rail{background:#F8F4EF;border-color:#EDE5DB}
+.rail .chip{background:#FFFFFF}
+.rail .chip[aria-pressed="true"]{background:var(--chip-on)}
+.rail,.card,.empty{box-shadow:0 4px 18px rgba(58,45,35,.05)}
+.card{border-color:#EAE2D8}
 .dark .toolbar{padding-bottom:36px}
 *{box-sizing:border-box}
 html,body{margin:0}
@@ -63,6 +65,14 @@ h1{margin:0;font-family:var(--display);font-weight:800;font-size:clamp(48px,8vw,
 .sort{display:flex;align-items:center;gap:8px;height:52px;padding:0 14px;background:var(--surface);border:1px solid var(--line);border-radius:14px}
 .sort label{font-size:13px;color:var(--muted);font-weight:600}
 .sort select{border:0;background:transparent;font-weight:600;outline:none}
+.seg{display:inline-flex;flex-wrap:wrap;gap:4px;padding:4px;border-radius:16px;background:var(--surface);border:1px solid var(--line);align-self:flex-start;max-width:100%}
+.seg button{border:0;background:transparent;border-radius:12px;padding:10px 18px;font-weight:700;font-size:15px;cursor:pointer;color:var(--ink)}
+.seg button span{font-weight:500;opacity:.7;margin-left:6px;font-variant-numeric:tabular-nums}
+.seg button[aria-pressed="true"]{background:var(--chip-on);color:var(--chip-on-ink)}
+.badge{display:inline-block;margin-left:8px;padding:2px 8px;border-radius:999px;font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;vertical-align:2px;background:var(--surface-2);color:var(--ink)}
+.insp{margin:6px 0 0;font-size:13.5px;color:var(--muted)}
+.insp b{color:var(--ink);font-weight:700}
+.linkish{border:0;background:none;padding:0;color:var(--accent);font-weight:700;font-size:13px;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
 .presets{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .presets .lbl{font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-right:4px}
 .preset{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 14px;font-size:14px;font-weight:600;cursor:pointer}
@@ -139,6 +149,23 @@ h1{margin:0;font-family:var(--display);font-weight:800;font-size:clamp(48px,8vw,
 .placeholder{padding:48px 24px;text-align:center;color:var(--muted)}
 .disclaimer{margin:28px 0 0;font-size:12.5px;color:var(--muted);max-width:760px}
 
+/* Roomier cards */
+.grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,330px),1fr));gap:24px}
+.swatch{padding:16px 22px 14px}
+.body{padding:20px 22px 22px;gap:14px}
+.name{font-size:26px;line-height:1.08}
+.notes{gap:6px}
+.notes{gap:8px}
+.note{font-size:14.5px;font-weight:500;padding:6px 13px 6px 9px;display:inline-flex;align-items:center;gap:7px}
+.note .ni{font-size:19px;line-height:1;display:inline-flex}
+.note .ni svg{width:19px;height:19px;display:block}
+.meta{gap:14px 18px;padding-top:14px;margin-top:4px}
+.meta dd{line-height:1.4}
+.card-foot{padding-top:10px;gap:12px}
+.more{padding:8px 14px}
+.resultbar{margin-bottom:20px}
+.main{gap:40px}
+
 @media (max-width: 900px){
   .main{grid-template-columns:minmax(0,1fr)}
   .rail{position:static;max-height:none}
@@ -186,6 +213,7 @@ h1{margin:0;font-family:var(--display);font-weight:800;font-size:clamp(48px,8vw,
       </select>
     </div>
   </div>
+  <div class="seg" id="catSeg" role="group" aria-label="Category"></div>
   <div class="presets" id="presets"><span class="lbl">Quick picks</span></div>
 </section>
 </div>
@@ -223,7 +251,7 @@ h1{margin:0;font-family:var(--display);font-weight:800;font-size:clamp(48px,8vw,
     </div>
     <div id="viewerBody"><p class="placeholder">Choose a poster above to preview it.</p></div>
   </div>
-  <p class="disclaimer">Popularity, strength, longevity and price bands are editorial estimates from community consensus, not live ratings. Strength and longevity vary with skin, climate and concentration. “Marketed as” reflects how the house sells it; anyone can wear anything.</p>
+  <p class="disclaimer">Popularity, strength, longevity and price bands are editorial estimates from community consensus, not live ratings. Strength and longevity vary with skin, climate and concentration. “Marketed as” reflects how the house sells it; anyone can wear anything. Perfume clones are budget alternatives inspired by designer scents. House of EM5, Menworks and Arabian Aroma notes come from the brands' own product listings and are not independently rated.</p>
 </section>
 </div>
 
@@ -311,30 +339,240 @@ const P = [
  {n:'Cloud',h:'Ariana Grande',f:9,notes:['Lavender','Pear','Praline','Whipped cream'],mood:['playful','cozy'],occ:['everyday','date','lounge'],sea:['spring','autumn','winter'],time:['day','night'],pop:4,int:2,lon:2,price:1,g:'F'},
  {n:'Oud for Greatness',h:'Initio',f:10,notes:['Oud','Saffron','Nutmeg','Lavender'],mood:['mysterious','confident'],occ:['nightout','formal'],sea:['autumn','winter'],time:['night'],pop:4,int:3,lon:3,price:4,g:'U'},
  {n:'Gypsy Water',h:'Byredo',f:11,notes:['Bergamot','Juniper','Pine needles','Sandalwood'],mood:['calm','cozy','clean'],occ:['everyday','office'],sea:['spring','autumn'],time:['day'],pop:4,int:1,lon:1,price:4,g:'U'},
- {n:'Explorer',h:'Montblanc',f:11,notes:['Bergamot','Pink pepper','Vetiver','Leather'],mood:['confident','energetic'],occ:['everyday','office','nightout'],sea:['spring','autumn'],time:['day','night'],pop:4,int:2,lon:2,price:1,g:'M'}
+ {n:'Explorer',h:'Montblanc',f:11,notes:['Bergamot','Pink pepper','Vetiver','Leather'],mood:['confident','energetic'],occ:['everyday','office','nightout'],sea:['spring','autumn'],time:['day','night'],pop:4,int:2,lon:2,price:1,g:'M'},
+
+ /* ---- Tom Ford ---- */
+ {n:'Lost Cherry',h:'Tom Ford',f:9,notes:['Black cherry','Bitter almond','Cherry liqueur','Tonka bean'],mood:['sensual','playful','cozy'],occ:['date','nightout'],sea:['autumn','winter'],time:['night'],pop:5,int:3,lon:3,price:4,g:'U'},
+ {n:'Tuscan Leather',h:'Tom Ford',f:12,notes:['Leather','Raspberry','Saffron','Thyme'],mood:['confident','sensual','mysterious'],occ:['nightout','date','formal'],sea:['autumn','winter'],time:['night'],pop:5,int:3,lon:3,price:4,g:'U'},
+ {n:'Noir Extreme',h:'Tom Ford',f:9,notes:['Cardamom','Kulfi','Rose','Vanilla'],mood:['cozy','sensual','elegant'],occ:['date','formal','lounge'],sea:['autumn','winter'],time:['night'],pop:4,int:3,lon:3,price:3,g:'M'},
+ {n:'Fucking Fabulous',h:'Tom Ford',f:12,notes:['Leather','Lavender','Bitter almond','Tonka bean'],mood:['confident','mysterious','sensual'],occ:['nightout','date'],sea:['autumn','winter'],time:['night'],pop:4,int:3,lon:3,price:4,g:'U'},
+ {n:'Soleil Blanc',h:'Tom Ford',f:8,notes:['Bergamot','Jasmine','Coconut','Amber'],mood:['playful','sensual','calm'],occ:['vacation','date','everyday'],sea:['spring','summer'],time:['day','night'],pop:4,int:2,lon:2,price:4,g:'U'},
+ {n:'Grey Vetiver',h:'Tom Ford',f:11,notes:['Vetiver','Grapefruit','Orris','Oakmoss'],mood:['clean','elegant','confident'],occ:['office','everyday','formal'],sea:['spring','summer','autumn'],time:['day'],pop:4,int:2,lon:2,price:3,g:'M'},
+ {n:'Bitter Peach',h:'Tom Ford',f:5,notes:['Peach','Blood orange','Rum','Vanilla'],mood:['sensual','playful','cozy'],occ:['date','nightout'],sea:['autumn','winter'],time:['night'],pop:4,int:3,lon:3,price:4,g:'U'},
+ {n:'Tobacco Oud',h:'Tom Ford',f:10,notes:['Tobacco','Oud','Whiskey','Cinnamon'],mood:['mysterious','cozy','confident'],occ:['formal','nightout','lounge'],sea:['autumn','winter'],time:['night'],pop:4,int:3,lon:3,price:4,g:'U'},
+ {n:'Costa Azzurra',h:'Tom Ford',f:3,notes:['Sea notes','Cypress','Lemon','Driftwood'],mood:['fresh','calm','energetic'],occ:['vacation','everyday','gym'],sea:['spring','summer'],time:['day'],pop:3,int:2,lon:2,price:4,g:'U'},
+ {n:'Ébène Fumé',h:'Tom Ford',f:11,notes:['Palo santo','Incense','Leather','Black pepper'],mood:['mysterious','calm','elegant'],occ:['formal','nightout'],sea:['autumn','winter'],time:['night'],pop:3,int:2,lon:3,price:4,g:'U'},
+
+ /* ---- Louis Vuitton ---- */
+ {n:'Météore',h:'Louis Vuitton',f:2,notes:['Bergamot','Mandarin','Pepper','Vetiver'],mood:['fresh','energetic','elegant'],occ:['office','everyday','vacation'],sea:['spring','summer'],time:['day'],pop:3,int:2,lon:2,price:4,g:'M'},
+ {n:"L'Immensité",h:'Louis Vuitton',f:1,notes:['Grapefruit','Ginger','Labdanum','Ambroxan'],mood:['fresh','confident','energetic'],occ:['everyday','office','gym'],sea:['spring','summer'],time:['day'],pop:4,int:2,lon:2,price:4,g:'M'},
+ {n:'Nouveau Monde',h:'Louis Vuitton',f:10,notes:['Leather','Cocoa','Oud','Saffron'],mood:['mysterious','confident','sensual'],occ:['formal','nightout'],sea:['autumn','winter'],time:['night'],pop:3,int:3,lon:3,price:4,g:'M'},
+ {n:'Sur la Route',h:'Louis Vuitton',f:2,notes:['Lemon','Cedar','Jasmine','Musk'],mood:['fresh','clean','calm'],occ:['everyday','office','vacation'],sea:['spring','summer'],time:['day'],pop:3,int:2,lon:2,price:4,g:'M'},
+ {n:'Pacific Chill',h:'Louis Vuitton',f:2,notes:['Lemon','Blackcurrant','Mint','Carrot seed'],mood:['fresh','energetic','clean'],occ:['gym','vacation','everyday'],sea:['summer'],time:['day'],pop:4,int:2,lon:1,price:4,g:'U'},
+ {n:'California Dream',h:'Louis Vuitton',f:2,notes:['Mandarin','Pink pepper','Ambrette','Benzoin'],mood:['playful','calm','fresh'],occ:['vacation','everyday'],sea:['spring','summer'],time:['day'],pop:3,int:2,lon:2,price:4,g:'U'},
+ {n:'Attrape-Rêves',h:'Louis Vuitton',f:8,notes:['Lychee','Peony','Cocoa','Patchouli'],mood:['romantic','playful','sensual'],occ:['date','nightout'],sea:['spring','autumn','winter'],time:['day','night'],pop:4,int:2,lon:3,price:4,g:'F'},
+ {n:'Spell on You',h:'Louis Vuitton',f:6,notes:['Iris','Rose','Jasmine','Acacia'],mood:['romantic','elegant'],occ:['date','formal','everyday'],sea:['spring','autumn'],time:['day','night'],pop:3,int:2,lon:2,price:4,g:'F'},
+
+ /* ---- Yves Saint Laurent ---- */
+ {n:"La Nuit de L'Homme",h:'Yves Saint Laurent',f:1,notes:['Cardamom','Lavender','Cedar','Vetiver'],mood:['sensual','elegant','calm'],occ:['date','nightout'],sea:['autumn','winter'],time:['night'],pop:5,int:1,lon:1,price:2,g:'M'},
+ {n:'MYSLF',h:'Yves Saint Laurent',f:6,notes:['Orange blossom','Bergamot','Patchouli','Woods'],mood:['elegant','confident','clean'],occ:['office','everyday','date'],sea:['spring','autumn'],time:['day','night'],pop:4,int:2,lon:2,price:2,g:'M'},
+ {n:'Tuxedo',h:'Yves Saint Laurent',f:9,notes:['Patchouli','Vanilla','Black pepper','Rose'],mood:['mysterious','sensual','cozy'],occ:['formal','nightout','date'],sea:['autumn','winter'],time:['night'],pop:4,int:2,lon:3,price:3,g:'U'},
+ {n:"L'Homme",h:'Yves Saint Laurent',f:1,notes:['Ginger','Bergamot','Cedar','Vetiver'],mood:['clean','elegant','calm'],occ:['office','everyday'],sea:['spring','summer','autumn'],time:['day'],pop:4,int:1,lon:1,price:2,g:'M'},
+ {n:'Mon Paris',h:'Yves Saint Laurent',f:5,notes:['Strawberry','Pear','Peony','Patchouli'],mood:['romantic','playful'],occ:['date','nightout','everyday'],sea:['spring','autumn','winter'],time:['day','night'],pop:4,int:3,lon:3,price:2,g:'F'},
+ {n:'Kouros',h:'Yves Saint Laurent',f:1,notes:['Aldehydes','Clove','Honey','Incense'],mood:['confident','mysterious'],occ:['nightout','formal'],sea:['autumn','winter'],time:['night'],pop:4,int:3,lon:3,price:2,g:'M'},
+ {n:'Opium',h:'Yves Saint Laurent',f:10,notes:['Mandarin','Clove','Myrrh','Vanilla'],mood:['mysterious','sensual','elegant'],occ:['formal','date','nightout'],sea:['autumn','winter'],time:['night'],pop:4,int:3,lon:3,price:2,g:'F'},
+
+ /* ---- Dior ---- */
+ {n:'Sauvage Elixir',h:'Dior',f:1,notes:['Cinnamon','Lavender','Licorice','Sandalwood'],mood:['confident','sensual','mysterious'],occ:['nightout','date'],sea:['autumn','winter'],time:['night'],pop:5,int:3,lon:3,price:3,g:'M'},
+ {n:"J'adore",h:'Dior',f:6,notes:['Ylang-ylang','Rose','Jasmine','Pear'],mood:['elegant','romantic'],occ:['formal','date','office'],sea:['spring','summer'],time:['day','night'],pop:5,int:2,lon:2,price:3,g:'F'},
+ {n:'Miss Dior',h:'Dior',f:6,notes:['Rose','Iris','Peony','Vanilla'],mood:['romantic','elegant','playful'],occ:['date','everyday','formal'],sea:['spring','summer'],time:['day'],pop:5,int:2,lon:2,price:3,g:'F'},
+ {n:'Fève Délicieuse',h:'Dior',f:9,notes:['Tonka bean','Cocoa','Praline','Vanilla'],mood:['cozy','sensual'],occ:['lounge','date'],sea:['autumn','winter'],time:['night'],pop:3,int:2,lon:3,price:4,g:'U'},
+ {n:'Ambre Nuit',h:'Dior',f:10,notes:['Amber','Rose','Pink pepper','Guaiac wood'],mood:['sensual','elegant','mysterious'],occ:['formal','date'],sea:['autumn','winter'],time:['night'],pop:3,int:2,lon:2,price:4,g:'U'},
+ {n:"Bois d'Argent",h:'Dior',f:7,notes:['Iris','Myrrh','Honey','Leather'],mood:['elegant','calm','cozy'],occ:['office','formal','date'],sea:['spring','autumn','winter'],time:['day','night'],pop:4,int:2,lon:2,price:4,g:'U'},
+ {n:'Oud Ispahan',h:'Dior',f:10,notes:['Oud','Rose','Labdanum','Patchouli'],mood:['mysterious','sensual'],occ:['formal','nightout'],sea:['autumn','winter'],time:['night'],pop:4,int:3,lon:3,price:4,g:'U'},
+ {n:'Dior Homme Parfum',h:'Dior',f:7,notes:['Iris','Leather','Oud','Sandalwood'],mood:['elegant','mysterious','sensual'],occ:['formal','date'],sea:['autumn','winter'],time:['night'],pop:4,int:2,lon:3,price:3,g:'M'},
+
+ /* ---- Parfums de Marly ---- */
+ {n:'Pegasus',h:'Parfums de Marly',f:9,notes:['Almond','Heliotrope','Vanilla','Sandalwood'],mood:['cozy','elegant','sensual'],occ:['date','office','formal'],sea:['autumn','winter'],time:['day','night'],pop:4,int:3,lon:3,price:4,g:'M'},
+ {n:'Herod',h:'Parfums de Marly',f:9,notes:['Tobacco leaf','Cinnamon','Pepper','Vanilla'],mood:['cozy','mysterious','sensual'],occ:['date','lounge','nightout'],sea:['autumn','winter'],time:['night'],pop:4,int:3,lon:3,price:4,g:'M'},
+ {n:'Percival',h:'Parfums de Marly',f:1,notes:['Lavender','Mandarin','Cardamom','Ambroxan'],mood:['fresh','clean','confident'],occ:['office','everyday'],sea:['spring','summer'],time:['day'],pop:4,int:3,lon:3,price:4,g:'M'},
+ {n:'Greenley',h:'Parfums de Marly',f:4,notes:['Green apple','Bergamot','Violet leaf','Cedar'],mood:['fresh','clean','energetic'],occ:['office','everyday'],sea:['spring','summer'],time:['day'],pop:4,int:2,lon:2,price:4,g:'M'},
+ {n:'Valaya',h:'Parfums de Marly',f:7,notes:['White musk','Aldehydes','Peach','Orange blossom'],mood:['clean','elegant','calm'],occ:['office','everyday','date'],sea:['spring','summer'],time:['day'],pop:4,int:2,lon:2,price:4,g:'F'},
+ {n:'Althaïr',h:'Parfums de Marly',f:9,notes:['Vanilla','Cardamom','Orange blossom','Praline'],mood:['cozy','sensual'],occ:['date','lounge','nightout'],sea:['autumn','winter'],time:['night'],pop:4,int:3,lon:3,price:4,g:'M'},
+ {n:'Sedley',h:'Parfums de Marly',f:1,notes:['Mint','Bergamot','Lavender','Geranium'],mood:['fresh','clean','energetic'],occ:['gym','everyday','vacation'],sea:['spring','summer'],time:['day'],pop:3,int:2,lon:2,price:4,g:'M'},
+ {n:'Delina Exclusif',h:'Parfums de Marly',f:6,notes:['Rose','Lychee','Oud','Incense'],mood:['romantic','sensual','mysterious'],occ:['date','formal','nightout'],sea:['autumn','winter'],time:['night'],pop:4,int:3,lon:3,price:4,g:'F'},
+
+ /* ---- Diptyque ---- */
+ {n:'Tam Dao',h:'Diptyque',f:11,notes:['Sandalwood','Cypress','Cedar','Ambrette'],mood:['calm','cozy'],occ:['everyday','office','lounge'],sea:['autumn','winter'],time:['day','night'],pop:4,int:1,lon:2,price:3,g:'U'},
+ {n:'Do Son',h:'Diptyque',f:6,notes:['Tuberose','Orange blossom','Pink pepper','Musk'],mood:['romantic','calm','fresh'],occ:['everyday','date','vacation'],sea:['spring','summer'],time:['day'],pop:4,int:2,lon:2,price:3,g:'U'},
+ {n:'Orphéon',h:'Diptyque',f:11,notes:['Juniper','Jasmine','Tonka bean','Cedar'],mood:['calm','elegant','cozy'],occ:['office','everyday'],sea:['spring','autumn','winter'],time:['day','night'],pop:4,int:2,lon:2,price:3,g:'U'},
+ {n:'Eau Capitale',h:'Diptyque',f:6,notes:['Rose','Bergamot','Patchouli','Pink pepper'],mood:['elegant','romantic'],occ:['office','date'],sea:['spring','autumn'],time:['day'],pop:3,int:2,lon:2,price:3,g:'U'},
+ {n:"L'Ombre dans l'Eau",h:'Diptyque',f:4,notes:['Blackcurrant leaf','Rose','Green notes','Musk'],mood:['fresh','romantic','calm'],occ:['everyday','office'],sea:['spring','summer'],time:['day'],pop:3,int:2,lon:2,price:3,g:'U'},
+ {n:'Fleur de Peau',h:'Diptyque',f:7,notes:['Iris','Musk','Ambrette','Pink pepper'],mood:['clean','sensual','calm'],occ:['everyday','office','date'],sea:['spring','summer','autumn','winter'],time:['day','night'],pop:4,int:1,lon:2,price:3,g:'U'},
+
+ /* ---- Giorgio Armani ---- */
+ {n:'Acqua di Giò',h:'Giorgio Armani',f:3,notes:['Sea notes','Lime','Jasmine','White musk'],mood:['fresh','clean','calm'],occ:['everyday','gym','vacation','office'],sea:['spring','summer'],time:['day'],pop:5,int:2,lon:2,price:2,g:'M'},
+ {n:'Stronger With You Intensely',h:'Giorgio Armani',f:9,notes:['Cinnamon','Toffee','Chestnut','Vanilla'],mood:['cozy','sensual','playful'],occ:['date','nightout','lounge'],sea:['autumn','winter'],time:['night'],pop:5,int:3,lon:3,price:2,g:'M'},
+ {n:'Sì',h:'Giorgio Armani',f:5,notes:['Blackcurrant','Rose','Vanilla','Patchouli'],mood:['elegant','romantic','sensual'],occ:['date','formal','nightout'],sea:['autumn','winter'],time:['day','night'],pop:4,int:3,lon:3,price:2,g:'F'},
+ {n:'My Way',h:'Giorgio Armani',f:6,notes:['Orange blossom','Tuberose','Bergamot','Vanilla'],mood:['romantic','playful','elegant'],occ:['everyday','date'],sea:['spring','summer'],time:['day'],pop:4,int:2,lon:2,price:2,g:'F'},
+ {n:'Armani Code',h:'Giorgio Armani',f:1,notes:['Lemon','Star anise','Olive blossom','Tonka bean'],mood:['sensual','elegant'],occ:['date','nightout'],sea:['autumn','winter'],time:['night'],pop:4,int:2,lon:2,price:2,g:'M'},
+ {n:"Privé Bois d'Encens",h:'Giorgio Armani',f:11,notes:['Incense','Vetiver','Black pepper','Cedar'],mood:['mysterious','calm','elegant'],occ:['formal','office'],sea:['autumn','winter'],time:['day','night'],pop:4,int:2,lon:2,price:4,g:'U'},
+
+ /* ---- Ex Nihilo ---- */
+ {n:'Fleur Narcotique',h:'Ex Nihilo',f:6,notes:['Orange blossom','Jasmine','Peony','Musk'],mood:['romantic','playful','elegant'],occ:['date','everyday','formal'],sea:['spring','summer'],time:['day','night'],pop:4,int:2,lon:2,price:4,g:'U'},
+ {n:'Blue Talisman',h:'Ex Nihilo',f:5,notes:['Pear','Bergamot','Orange blossom','Jasmine sambac'],mood:['fresh','playful','confident'],occ:['everyday','date','office'],sea:['spring','summer'],time:['day'],pop:4,int:2,lon:2,price:4,g:'U'},
+ {n:'Lust in Paradise',h:'Ex Nihilo',f:6,notes:['Pink pepper','Rose','White cedar','Musk'],mood:['romantic','sensual'],occ:['date','nightout'],sea:['spring','autumn'],time:['day','night'],pop:3,int:2,lon:2,price:4,g:'U'},
+
+ /* ---- Givenchy ---- */
+ {n:'Gentleman Eau de Parfum',h:'Givenchy',f:9,notes:['Iris','Lavender','Black vanilla','Patchouli'],mood:['elegant','sensual','cozy'],occ:['date','office','formal'],sea:['autumn','winter'],time:['night'],pop:4,int:2,lon:3,price:2,g:'M'},
+ {n:'Gentleman Réserve Privée',h:'Givenchy',f:9,notes:['Whisky','Iris','Bergamot','Vanilla'],mood:['cozy','elegant','sensual'],occ:['date','formal','lounge'],sea:['autumn','winter'],time:['night'],pop:4,int:2,lon:2,price:2,g:'M'},
+ {n:'π (Pi)',h:'Givenchy',f:9,notes:['Tarragon','Vanilla','Benzoin','Tonka bean'],mood:['cozy','calm','sensual'],occ:['lounge','date'],sea:['autumn','winter'],time:['night'],pop:4,int:2,lon:3,price:1,g:'M'},
+ {n:"L'Interdit",h:'Givenchy',f:6,notes:['Orange blossom','Tuberose','Vetiver','Patchouli'],mood:['mysterious','sensual','elegant'],occ:['nightout','date'],sea:['autumn','winter'],time:['night'],pop:4,int:3,lon:3,price:2,g:'F'},
+ {n:'Irresistible',h:'Givenchy',f:6,notes:['Rose','Pear','Ambrette','Blond woods'],mood:['playful','romantic','fresh'],occ:['everyday','date','office'],sea:['spring','summer'],time:['day'],pop:4,int:2,lon:2,price:2,g:'F'},
+
+ /* ---- Bvlgari ---- */
+ {n:'Man in Black',h:'Bvlgari',f:9,notes:['Rum','Spices','Leather','Tonka bean'],mood:['sensual','mysterious','cozy'],occ:['nightout','date'],sea:['autumn','winter'],time:['night'],pop:5,int:3,lon:3,price:2,g:'M'},
+ {n:'Man Wood Essence',h:'Bvlgari',f:11,notes:['Cedar','Cypress','Vetiver','Citrus'],mood:['calm','fresh','confident'],occ:['office','everyday'],sea:['spring','autumn'],time:['day'],pop:4,int:2,lon:2,price:2,g:'M'},
+ {n:'Le Gemme Tygar',h:'Bvlgari',f:2,notes:['Grapefruit','Ambroxan','Woods'],mood:['fresh','confident','energetic'],occ:['everyday','office','gym'],sea:['spring','summer'],time:['day'],pop:4,int:3,lon:3,price:4,g:'M'},
+ {n:'Pour Homme',h:'Bvlgari',f:2,notes:['Darjeeling tea','Bergamot','Vetiver','Musk'],mood:['clean','calm','elegant'],occ:['office','everyday'],sea:['spring','summer'],time:['day'],pop:4,int:1,lon:1,price:2,g:'M'},
+ {n:'Eau Parfumée au Thé Vert',h:'Bvlgari',f:4,notes:['Green tea','Bergamot','Jasmine','Musk'],mood:['clean','calm','fresh'],occ:['office','everyday'],sea:['spring','summer'],time:['day'],pop:3,int:1,lon:1,price:1,g:'U'},
+
+ /* ---- Versace ---- */
+ {n:'Eros',h:'Versace',f:1,notes:['Mint','Green apple','Tonka bean','Vanilla'],mood:['confident','energetic','sensual'],occ:['nightout','date'],sea:['spring','autumn','winter'],time:['night'],pop:5,int:3,lon:3,price:2,g:'M'},
+ {n:'Eros Flame',h:'Versace',f:1,notes:['Mandarin','Black pepper','Rosemary','Vanilla'],mood:['confident','sensual','energetic'],occ:['nightout','date'],sea:['autumn','winter'],time:['night'],pop:4,int:3,lon:3,price:2,g:'M'},
+ {n:'Dylan Blue',h:'Versace',f:1,notes:['Bergamot','Grapefruit','Violet leaf','Incense'],mood:['fresh','confident'],occ:['everyday','office'],sea:['spring','summer','autumn'],time:['day'],pop:4,int:3,lon:3,price:2,g:'M'},
+ {n:'Bright Crystal',h:'Versace',f:5,notes:['Pomegranate','Yuzu','Peony','Musk'],mood:['fresh','playful','romantic'],occ:['everyday','office','vacation'],sea:['spring','summer'],time:['day'],pop:4,int:2,lon:1,price:1,g:'F'},
+ {n:'Crystal Noir',h:'Versace',f:8,notes:['Gardenia','Coconut','Pepper','Amber'],mood:['mysterious','sensual'],occ:['nightout','date'],sea:['autumn','winter'],time:['night'],pop:4,int:2,lon:2,price:1,g:'F'},
+ {n:'Pour Homme',h:'Versace',f:2,notes:['Lemon','Neroli','Bergamot','Cedar'],mood:['fresh','clean','energetic'],occ:['everyday','office','gym'],sea:['spring','summer'],time:['day'],pop:4,int:1,lon:1,price:1,g:'M'},
+
+ /* ---- EM5 (affordable Indian house; notes from the brand's own listings, ratings not independently verified) ---- */
+ {n:'Allune',h:'House of EM5',f:3,notes:['Orange','Sea notes','Aldehydes','Vanilla'],mood:['fresh','energetic'],occ:['everyday','office'],sea:['spring','summer'],time:['day'],pop:3,int:2,lon:2,price:1,g:'M',src:'brand'},
+ {n:'Icon',h:'House of EM5',f:1,notes:['Neroli','Black pepper','Lavender','Oud'],mood:['confident','fresh'],occ:['everyday','office','nightout'],sea:['spring','autumn'],time:['day','night'],pop:3,int:2,lon:2,price:1,g:'M',src:'brand'},
+ {n:'Cave',h:'House of EM5',f:1,notes:['Mandarin','Rosemary','Vanilla','Tonka bean'],mood:['confident','sensual','energetic'],occ:['nightout','date'],sea:['autumn','winter'],time:['night'],pop:3,int:2,lon:2,price:1,g:'M',src:'brand',alt:'Versace Eros Flame'},
+ {n:'Quad',h:'House of EM5',f:9,notes:['Cinnamon','Tobacco leaf','Labdanum','Vanilla'],mood:['cozy','sensual'],occ:['date','lounge'],sea:['autumn','winter'],time:['night'],pop:3,int:2,lon:2,price:1,g:'M',src:'brand',alt:'Parfums de Marly Herod'},
+ {n:'Bewitch',h:'House of EM5',f:5,notes:['Iris','Peony','Peach','Vanilla'],mood:['romantic','playful'],occ:['date','everyday'],sea:['spring','autumn'],time:['day','night'],pop:3,int:2,lon:2,price:1,g:'F',src:'brand'},
+ {n:'Soirée Elixir',h:'House of EM5',f:10,notes:['Nutmeg','Cinnamon','Licorice','Amber'],mood:['cozy','sensual','confident'],occ:['nightout','date'],sea:['autumn','winter'],time:['night'],pop:3,int:2,lon:2,price:1,g:'M',src:'brand'},
+ {n:'Afgano',h:'House of EM5',f:10,notes:['Amber','Oud','Smoke'],mood:['mysterious','confident'],occ:['nightout','formal'],sea:['autumn','winter'],time:['night'],pop:3,int:2,lon:2,price:1,g:'M',src:'brand'},
+ {n:'Reverie',h:'House of EM5',f:7,notes:['Iris','Violet','Woods'],mood:['elegant','calm'],occ:['office','everyday'],sea:['spring','autumn'],time:['day'],pop:3,int:2,lon:2,price:1,g:'M',src:'brand'},
+ {n:'Leather Freskos',h:'House of EM5',f:12,notes:['Leather','Spices','Fresh notes'],mood:['confident','energetic'],occ:['everyday','nightout'],sea:['spring','autumn'],time:['day','night'],pop:3,int:2,lon:2,price:1,g:'U',src:'brand'}
 ];
+
+/* ---------- Perfume clones ----------
+ Row: [name, family, 'notes, …', 'moods', 'occasions', 'seasons'|'all', 'day night', 'House Original (optional note)', {overrides}]
+ alt names the original as "House Name" so it links to that designer card when it is in the list. */
+const ALL4 = ['spring','summer','autumn','winter'];
+function clones(h, defaults, rows){
+  return rows.map(([n,f,notes,mood,occ,sea,time,alt,o]) => Object.assign(
+    {n,h,f,notes:notes.split(', '),mood:mood.split(' '),occ:occ.split(' '),sea:sea==='all'?ALL4:sea.split(' '),time:time.split(' ')},
+    alt ? {alt} : {}, defaults, o || {}));
+}
+P.push(...clones('Lattafa', {pop:4,int:3,lon:3,price:1,g:'U'}, [
+ ['Khamrah',9,'Cinnamon, Dates, Praline, Tuberose, Vanilla','cozy sensual','date lounge nightout','autumn winter','night',"Kilian Paris Angels' Share",{pop:5}],
+ ['Khamrah Qahwa',9,'Coffee, Cardamom, Cinnamon, Praline, Vanilla','cozy sensual','lounge date','autumn winter','night'],
+ ['Asad',1,'Black pepper, Pineapple, Tobacco, Vanilla, Amber','confident sensual','nightout date','autumn winter','night','Dior Sauvage Elixir',{pop:5,g:'M'}],
+ ['Yara',9,'Orchid, Heliotrope, Tangerine, Vanilla, Musk','playful romantic cozy','everyday date','spring autumn winter','day night',null,{pop:5,int:2,lon:2,g:'F'}],
+ ["Bade'e Al Oud Oud for Glory",10,'Saffron, Nutmeg, Lavender, Oud, Patchouli','mysterious confident','nightout formal','autumn winter','night','Initio Oud for Greatness'],
+ ['Fakhar Black',1,'Apple, Ginger, Bergamot, Lavender, Tonka bean','fresh energetic confident','everyday office','spring summer autumn','day','Yves Saint Laurent Y Eau de Parfum',{int:2,lon:2,g:'M'}],
+ ['Qaed Al Fursan',5,'Pineapple, Saffron, Jasmine, Oud','confident sensual','nightout date','spring autumn winter','day night',null,{g:'M'}],
+ ['Eclaire',9,'Caramel, Milk, Honey, Vanilla','cozy playful','lounge date everyday','autumn winter','day night',null,{int:2,g:'F'}],
+ ['Raghba',9,'Vanilla, Oud, Incense, Sugar','cozy sensual mysterious','lounge nightout','autumn winter','night']
+]));
+P.push(...clones('Armaf', {pop:4,int:3,lon:3,price:1,g:'M'}, [
+ ['Club de Nuit Intense Man',5,'Lemon, Pineapple, Blackcurrant, Birch, Musk','confident energetic','nightout date office','spring autumn','day night','Creed Aventus',{pop:5}],
+ ['Club de Nuit Untold',8,'Saffron, Jasmine, Ambergris, Cedar','sensual mysterious','nightout date formal','autumn winter','night','Maison Francis Kurkdjian Baccarat Rouge 540',{g:'U'}],
+ ['Club de Nuit Milestone',3,'Sea notes, Red fruits, Violet, Sandalwood','fresh calm','everyday office vacation','spring summer','day','Creed Millésime Impérial',{int:2,lon:2,g:'U'}],
+ ['Club de Nuit Sillage',3,'Bergamot, Blackcurrant, Green tea, Musk','fresh clean','office everyday','spring summer','day','Creed Silver Mountain Water',{int:2,lon:2,g:'U'}],
+ ['Club de Nuit Iconic',1,'Grapefruit, Ginger, Mint, Cedar, Incense','fresh confident','everyday office date','all','day night','Chanel Bleu de Chanel'],
+ ['Club de Nuit Woman',6,'Orange, Rose, Patchouli, Vanilla','elegant confident','office date','all','day night','Chanel Coco Mademoiselle',{g:'F'}],
+ ['Club de Nuit Urban Man Elixir',1,'Bergamot, Pepper, Lavender, Ambroxan','fresh confident energetic','everyday nightout','all','day night','Dior Sauvage'],
+ ['Odyssey Mandarin Sky',9,'Mandarin, Caramel, Tonka bean, Benzoin','playful sensual cozy','nightout date','autumn winter','night','Jean Paul Gaultier Scandal Pour Homme'],
+ ['Tres Nuit',1,'Lemon, Violet, Green notes, Sandalwood','elegant clean','office everyday','spring summer','day','Creed Green Irish Tweed',{pop:3,int:2,lon:2}]
+]));
+P.push(...clones('Rasasi', {pop:4,int:3,lon:3,price:1,g:'M'}, [
+ ['Hawas for Him',3,'Apple, Cinnamon, Bergamot, Plum, Ambergris','fresh energetic sensual','nightout date vacation','spring summer','day night',null,{pop:5}],
+ ['La Yuqawam Pour Homme',12,'Leather, Raspberry, Saffron, Thyme','confident sensual mysterious','nightout date formal','autumn winter','night','Tom Ford Tuscan Leather',{price:2}],
+ ['Fattan Pour Homme',11,'Citrus, Juniper, Vetiver, Patchouli','calm confident','office everyday','spring autumn','day',null,{pop:3,int:2,lon:2}]
+]));
+/* Menworks and Arabian Aroma: notes and originals from the brands' own product listings; not independently rated. */
+P.push(...clones('Menworks', {pop:0,int:2,lon:2,price:1,g:'M',src:'brand'}, [
+ ['Havana',9,'Bergamot, Lavender, Honey, Cinnamon, Tobacco leaf, Vanilla','cozy sensual','date lounge nightout','autumn winter','night','Xerjoff Naxos'],
+ ['Untamed',12,'Cardamom, Saffron, Cade oil, Suede, Coffee, Vanilla','mysterious confident sensual','nightout date','autumn winter','night','Oman Luxury Caden'],
+ ['Givree',2,'Citron, Juniper, Timut pepper, Mineral notes','fresh clean','office everyday gym','spring summer','day',"Hermès Terre d'Hermès Eau Givrée"],
+ ["L'Instinct",4,'Green notes, Grapefruit, Mate, Rose, Patchouli, Vanilla','fresh confident','everyday office','spring autumn','day',"Guerlain Habit Rouge L'Instinct"],
+ ['Profumo',3,'Bergamot, Marine notes, Rosemary, Sage, Patchouli, Incense','fresh confident calm','everyday office date','spring summer autumn','day night','Giorgio Armani Acqua di Giò Profumo'],
+ ['Istanbul',5,'Pineapple, Grapefruit, Bergamot, Jasmine, Oakmoss','confident energetic','everyday office date','spring summer autumn','day night','Nishane Hacivat'],
+ ['Date Night',1,'Cardamom, Lavender, Bergamot, Cedar, Vetiver','sensual elegant calm','date nightout','autumn winter','night',"Yves Saint Laurent La Nuit de L'Homme"],
+ ['After The Blade',2,'Lemon, Basil, Rosemary, Jasmine, Oakmoss, Vetiver','clean elegant calm','office everyday','spring summer','day','Dior Eau Sauvage (amplified)'],
+ ['Cologne',1,'Orange, Bergamot, Rosemary, Lavender, Neroli, White musk','fresh clean','everyday office gym','spring summer','day'],
+ ["90's Shave",1,'Orange, Basil, Lavender, Black pepper, Oakmoss, Sandalwood','clean confident calm','everyday office','spring autumn','day'],
+ ['Summer Dive',2,'Orange, Bergamot, Mandarin, Ginger, Ambergris','energetic playful fresh','vacation everyday','summer','day','Louis Vuitton Afternoon Swim'],
+ ['Immense',1,'Orange, Ginger, Rosemary, Sage, Ambroxan, Labdanum','fresh confident energetic','everyday office gym','spring summer','day',"Louis Vuitton L'Immensité"],
+ ['Legend',3,'Watermelon, Lavender, Orange, Lotus, Musk, Ambroxan','fresh clean','everyday office gym','spring summer','day','Parfums de Marly Percival (with Montblanc Legend Blue)'],
+ ['Alexander',10,'Rosewood, Lavender, Cinnamon, Apple, Rose, Oud, Vanilla','elegant mysterious confident','formal date nightout','autumn winter','night','Xerjoff Alexandria II'],
+ ['Gris',12,'Bergamot, Rose, Jasmine, Oakmoss, Patchouli, White musk','elegant calm','office formal everyday','spring autumn','day','Dior Gris Dior',{g:'U'}],
+ ['Shaikh',10,'Lavender, Saffron, Rose, Bakhoor, Oud, Ambroxan','mysterious confident sensual','formal nightout','autumn winter','night','Maghribi Bin Shaikh (drydown)'],
+ ['Infinite',1,'Bergamot, Grapefruit, Mint, Ginger, Sandalwood, Cedar','confident elegant fresh','office everyday date','all','day night','Chanel Bleu de Chanel (EDP + Parfum blend)'],
+ ['Cardamom Aoud',12,'Cardamom, Plum, Cinnamon, Leather, Rose, Oud','mysterious sensual confident','nightout formal','autumn winter','night',"Penhaligon's Halfeti Leather"],
+ ['Heaven On The Rocks',9,'Bergamot, Lemon, Cognac, Caramel, Cinnamon, Tonka bean','cozy sensual playful','date nightout lounge','autumn winter','night',"Kilian Paris Angels' Share On The Rocks"],
+ ['Pineapple Mafia',5,'Pineapple, Green apple, Mandarin, Cedar, Oakmoss, Vanilla','playful confident energetic','everyday nightout','spring summer','day night','Creed Aventus (sweeter twist)'],
+ ['Syndicate',9,'Cherry, Pink pepper, Cognac, Rose, Tobacco, Vanilla','sensual mysterious','nightout date','autumn winter','night','Initio Narcotic Delight'],
+ ['Velvet Sin',10,'Rose, Violet, Strawberry, Oud, Vanilla, Caramel','sensual romantic mysterious','date formal nightout','autumn winter','night','Maison Francis Kurkdjian Oud Satin Mood',{g:'U'}],
+ ['After Dark',9,'Rum, Cinnamon, Tobacco, Saffron, Vanilla','sensual cozy mysterious','nightout date','autumn winter','night','Initio Side Effect'],
+ ['Victorious',1,'Lavender, Cardamom, Black pepper, Incense, Vanilla, Tonka bean','confident sensual','nightout date','autumn winter','night','Paco Rabanne Invictus Victory Elixir'],
+ ['Green Magnet',4,'Green apple, Bergamot, Mandarin, Cedar, Violet, Oakmoss','fresh clean energetic','office everyday','spring summer','day','Parfums de Marly Greenley'],
+ ['Bourbon Vanilla',9,'Ginger, Smoky woods, Bourbon vanilla','cozy sensual','date nightout lounge','autumn winter','night','Azzaro The Most Wanted Parfum'],
+ ['Ingenious',2,'Ginger, Bergamot, Mandarin, Magnolia, Neroli, Vanilla','fresh playful','everyday office','spring summer','day'],
+ ['The Bleu',1,'Apple, Ginger, Bergamot, Sage, Juniper, Amberwood, Tonka bean','energetic confident fresh','everyday nightout office','all','day night','Yves Saint Laurent Y Eau de Parfum'],
+ ['Millionare',9,'Apple, Davana, Rose, Osmanthus, Vanilla, Tonka bean','sensual playful confident','nightout date','autumn winter','night','Paco Rabanne 1 Million Elixir'],
+ ['Ambre Leather',12,'Cardamom, Saffron, Leather, Jasmine sambac, Suede, Amber','confident sensual mysterious','nightout date','autumn winter','day night','Tom Ford Ombré Leather (with Tuscan Leather)',{g:'U'}],
+ ['Myslv',6,'Bergamot, Orange blossom, Patchouli, Musk','elegant confident clean','office everyday date','spring autumn','day night','Yves Saint Laurent MYSLF'],
+ ['Golden Reserve Intense',1,'Lavender, Mint, Vanilla, Benzoin, Honey, Tobacco','sensual playful confident','nightout date','autumn winter','night','Jean Paul Gaultier Le Male Elixir'],
+ ['Wanted',9,'Cardamom, Toffee, Amberwood','cozy sensual','date nightout','autumn winter','night','Azzaro The Most Wanted'],
+ ['Atlantic Chill',2,'Blackcurrant, Orange, Lemon, Mint, Basil, Cedar','fresh energetic clean','gym vacation everyday','summer','day','Louis Vuitton Pacific Chill',{g:'U'}],
+ ['Profondo Intense',3,'Marine notes, Bergamot, Green mandarin, Rosemary, Cypress, Musk','fresh calm','everyday office gym','spring summer','day','Giorgio Armani Acqua di Giò Profondo'],
+ ['Pacific Water Reborn',3,'Galbanum, Cedar, Vetiver','fresh clean','gym everyday','summer','day','Davidoff Cool Water Reborn'],
+ ['Crome',2,'Lemon, Rosemary, Pineapple, Oakmoss, Cedar, Tonka bean','fresh clean energetic','everyday office gym','spring summer','day','Azzaro Chrome'],
+ ['Elixir',1,'Bergamot, Sichuan pepper, Lavender, Vetiver, Ambroxan, Labdanum','confident sensual','nightout date','autumn winter','night','Dior Sauvage Elixir'],
+ ['Spiced Tobacco',9,'Cinnamon, Saffron, Incense, Tobacco, Vanilla, Sandalwood','cozy mysterious sensual','nightout date lounge','autumn winter','night','Mancera Red Tobacco',{g:'U'}],
+ ['Italian Suede',5,'Pineapple, Bergamot, Blackcurrant, Birch, Oakmoss, Vanilla','confident energetic','date nightout office','spring summer autumn','day night','Creed Aventus'],
+ ['Ambre Noir',10,'Raspberry, Rose, Saffron, Benzoin, Incense, Oud','mysterious confident','formal nightout','autumn winter','night','Louis Vuitton Ombre Nomade',{g:'U'}]
+]));
+P.push(...clones('Arabian Aroma', {pop:0,int:2,lon:2,price:1,g:'U',src:'brand'}, [
+ ['Tamdan',11,'Sandalwood, Cedar, Spices, Vanilla, Ginger','calm cozy','everyday office lounge','autumn winter','day night','Diptyque Tam Dao'],
+ ['Hacivat',5,'Pineapple, Grapefruit, Bergamot, Patchouli, Oakmoss','confident energetic','everyday office date','spring summer autumn','day night','Nishane Hacivat',{g:'M'}],
+ ['Inspired by Grand Soir',10,'Amber, Vanilla, Benzoin, Tonka bean','cozy sensual','date formal','autumn winter','night','Maison Francis Kurkdjian Grand Soir'],
+ ['Tobacco Vanille Type',9,'Tobacco, Spices, Cacao, Woods','cozy sensual','date lounge nightout','autumn winter','night','Tom Ford Tobacco Vanille']
+]));
+
+/* ---------- Categories + clone ↔ original links ---------- */
+const CLONE_HOUSES = new Set(['House of EM5','Arabian Aroma','Menworks','Lattafa','Armaf','Rasasi','My Perfume Secrets']);
+P.forEach((p,i) => {
+  p.id = i;
+  p.cat = CLONE_HOUSES.has(p.h) ? 'clone' : 'designer';
+  if (p.src === 'brand') p.pop = 0;
+});
+const ORIGINALS = {};
+P.forEach(p => { if (p.cat === 'designer') ORIGINALS[(p.h + ' ' + p.n).toLowerCase()] = p; });
+P.forEach(p => {
+  if (p.cat !== 'clone' || !p.alt) return;
+  const o = ORIGINALS[p.alt.replace(/\s*\(.*\)\s*$/, '').toLowerCase()];
+  if (o){ p.orig = o; (o.clones = o.clones || []).push(p); }
+});
+
+const HOUSES = Object.entries(P.reduce((a,p)=>(a[p.h]=(a[p.h]||0)+1,a),{}))
+  .sort((a,b)=> (CLONE_HOUSES.has(a[0]) - CLONE_HOUSES.has(b[0])) || b[1]-a[1] || a[0].localeCompare(b[0])).map(([h])=>[h,h]);
 
 /* ---------- Note groups (substring match on a perfume's notes) ---------- */
 const NOTE_GROUPS = {
-  citrus:['lemon','lime','orange','mandarin','grapefruit','citron','bergamot','neroli','citrus','petitgrain','verbena'],
+  citrus:['lemon','lime','orange','mandarin','grapefruit','citron','bergamot','neroli','citrus','petitgrain','verbena','yuzu'],
   marine:['sea','marine','algae','seaweed'],
   green:['fig','violet leaf','green','reeds','bamboo','lotus','basil','thyme','juniper','pine'],
   tea:['tea'],
-  herbs:['lavender','rosemary','basil','thyme','geranium','mint','sage'],
-  fruit:['pineapple','blackcurrant','apple','lychee','raspberry','peach','plum','pear','quince','fruit','rhubarb','mango'],
-  rose:['rose'],
-  white:['jasmine','tuberose','orange blossom','white flowers','orchid','creeper','lily'],
-  iris:['iris','violet','aldehyde'],
-  spice:['pepper','ginger','cardamom','cinnamon','nutmeg','saffron','spices'],
+  herbs:['lavender','rosemary','basil','thyme','geranium','mint','sage','tarragon'],
+  fruit:['pineapple','blackcurrant','apple','lychee','raspberry','peach','plum','pear','quince','fruit','rhubarb','mango','cherry','strawberry','pomegranate'],
+  rose:['rose','peony','magnolia','acacia','freesia'],
+  white:['jasmine','tuberose','orange blossom','white flowers','orchid','creeper','lily','ylang','gardenia','olive blossom'],
+  iris:['iris','violet','aldehyde','orris','heliotrope'],
+  spice:['pepper','ginger','cardamom','cinnamon','nutmeg','saffron','spices','clove','licorice','anise'],
   vanilla:['vanilla','tonka'],
-  sweet:['cocoa','coffee','chocolate','praline','almond','honey','coconut','dried fruit','cream'],
-  boozy:['rum','cognac'],
+  sweet:['cocoa','coffee','chocolate','praline','almond','honey','coconut','dried fruit','cream','kulfi','toffee','chestnut'],
+  boozy:['rum','cognac','whisky','whiskey','liqueur'],
   tobacco:['tobacco'],
-  woods:['cedar','sandalwood','cypress','rosewood','cashmere wood'],
+  woods:['cedar','sandalwood','cypress','rosewood','cashmere wood','woods','driftwood','palo santo','guaiac'],
   vetiver:['vetiver'],
   oud:['oud'],
-  amber:['amber','benzoin','incense','ambroxan','ambergris','immortelle'],
-  leather:['leather','birch','flint'],
+  amber:['amber','benzoin','incense','ambroxan','ambergris','immortelle','myrrh','labdanum'],
+  leather:['leather','birch','flint','smoke'],
   musk:['musk','ambrette'],
   earthy:['patchouli','oakmoss','truffle']
 };
@@ -350,6 +588,7 @@ const DIMS = [
   {key:'sea', field:'sea', label:'Season', opts:[['spring','Spring'],['summer','Summer'],['autumn','Autumn'],['winter','Winter']]},
   {key:'time', field:'time', label:'Time of day', opts:[['day','Day'],['night','Night']]},
   {key:'fam', field:'f', label:'Scent family', hint:'Neighbours on the wheel smell related.', opts: FAM.slice(1).map((x,i)=>[String(i+1), x.name])},
+  {key:'house', field:'h', label:'House', hint:'Brands with the most picks first.', opts: HOUSES},
   {key:'notes', field:'notes', label:'Notes you love', hint:'Shows perfumes with any of these.', opts:[
     ['citrus','Citrus'],['marine','Marine'],['green','Green & herbal'],['tea','Tea'],['herbs','Lavender & herbs'],['fruit','Fruit'],
     ['rose','Rose'],['white','White flowers'],['iris','Iris & powder'],['spice','Spice'],['vanilla','Vanilla & tonka'],['sweet','Coffee, cocoa & sweets'],
@@ -375,7 +614,7 @@ const PRESETS = [
 ];
 
 /* ---------- State ---------- */
-const state = {q:'', sort:'match', sel:{}};
+const state = {q:'', sort:'match', sel:{}, cat:'all', twin:null};
 DIMS.forEach(d=>state.sel[d.key]=new Set());
 
 const $ = s => document.querySelector(s);
@@ -384,6 +623,8 @@ const vals = (p, d) => { const v = p[d.field]; return Array.isArray(v) ? v.map(S
 const noteHit = (note, groups) => { const n = note.toLowerCase(); return groups.some(g => NOTE_GROUPS[g].some(t => n.includes(t))); };
 
 function matches(p){
+  if (state.cat !== 'all' && p.cat !== state.cat) return false;
+  if (state.twin != null && !(p.id === state.twin || (p.orig && p.orig.id === state.twin))) return false;
   for (const d of DIMS){
     const s = state.sel[d.key]; if (!s.size) continue;
     if (d.key === 'notes'){ if (!p.notes.some(n => noteHit(n, [...s]))) return false; continue; }
@@ -391,7 +632,7 @@ function matches(p){
   }
   if (state.q){
     const q = state.q.toLowerCase();
-    const hay = [p.n, p.h, FAM[p.f].name, FAM[p.f].group, ...p.notes, ...p.mood].join(' ').toLowerCase();
+    const hay = [p.n, p.h, p.alt || '', FAM[p.f].name, FAM[p.f].group, ...p.notes, ...p.mood].join(' ').toLowerCase();
     if (!q.split(/\s+/).every(t => hay.includes(t))) return false;
   }
   return true;
@@ -436,6 +677,61 @@ function renderFilters(){
 }
 
 /* ---------- Render: results ---------- */
+/* Note icons: first matching rule wins, so specific phrases come before general words. */
+const NOTE_ICONS = [
+  [['rosewood','palisander'],'🌲'],
+  [['pineapple'],'🍍'],
+  [['apple'],'🍏'],
+  [['watermelon'],'🍉'],
+  [['green mandarin'],'🍊'],
+  [['carrot'],'🌿'],
+  [['tea','darjeeling'],'🍵'],
+  [['tobacco'],'🍂'],
+  [['orange blossom','neroli','jasmine','tuberose','white flowers','gardenia','ylang','lily','olive blossom','creeper'],'🌼'],
+  [['violet leaf','fig leaf','blackcurrant leaf','green notes','galbanum','reeds','bamboo','mate','basil','thyme','mint','sage','tarragon','rosemary','verbena','juniper','green','fig'],'🌿'],
+  [['cherry'],'🍒'],[['strawberry','raspberry','red fruits'],'🍓'],[['peach','apricot'],'🍑'],
+  [['pear','quince'],'🍐'],[['coconut'],'🥥'],
+  [['orange','mandarin','tangerine','grapefruit','petitgrain','chinotto'],'🍊'],
+  [['blackcurrant','plum','lychee','pomegranate','dates','fruit','mango','rhubarb'],'🍇'],
+  [['lemon','lime','citron','yuzu','bergamot','citrus'],'🍋'],
+  [['sea','marine','algae','seaweed','water','mineral'],'🌊'],
+  [['rose','peony','magnolia','orchid','freesia','acacia','osmanthus','geranium','heliotrope','carnation','lotus'],'🌸'],
+  [['iris','orris','violet'],'💜'],
+  [['lavender'],'🪻'],
+  [['coffee'],'☕'],[['cocoa','chocolate','cacao','truffle'],'🍫'],[['honey'],'🍯'],[['almond','chestnut','praline'],'🌰'],
+  [['caramel','toffee','sugar','milk','cream','kulfi','davana'],'🍮'],
+  [['vanilla','tonka'],'🍦'],
+  [['rum','cognac','whisky','whiskey','liqueur','bourbon'],'🥃'],
+  [['pepper'],'svg:pepper'],
+  [['cardamom'],'🫛'],
+  [['cinnamon'],'svg:cinnamon'],
+  [['saffron'],'svg:saffron'],
+  [['ginger'],'🫚'],
+  [['clove'],'svg:clove'],
+  [['nutmeg'],'🌰'],
+  [['star anise','anise'],'✴️'],
+  [['spice','licorice','caraway','coriander','cumin'],'🌶️'],
+  [['leather','suede','birch','cade'],'🧥'],
+  [['ambergris','ambroxan','ambrofix'],'🐚'],
+  [['smoke','incense','olibanum','bakhoor','palo santo','myrrh','labdanum','benzoin','amber','immortelle','resin'],'🕯️'],
+  [['musk','ambrette','aldehyde','hedione','fresh notes','iso e'],'☁️'],
+  [['vetiver'],'🌾'],
+  [['patchouli','oakmoss','moss'],'🍃'],
+  [['oud','agarwood'],'🪵'],
+  [['cedar','sandalwood','cypress','pine','rosewood','guaiac','driftwood','wood','flint','cashmeran','palisander','oak'],'🌲']
+];
+/* Hand-drawn icons for spices that have no emoji of their own. */
+const SPICE_SVG = {
+  pepper:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="10" r="4" fill="#3B2F29"/><circle cx="16.2" cy="9" r="3.6" fill="#57463C"/><circle cx="12" cy="16.5" r="4.2" fill="#2A211D"/><circle cx="6.8" cy="8.6" r="1" fill="#fff" opacity=".35"/><circle cx="15.2" cy="7.8" r=".9" fill="#fff" opacity=".35"/><circle cx="10.6" cy="15" r="1.1" fill="#fff" opacity=".3"/></svg>',
+  cinnamon:'<svg viewBox="0 0 24 24" aria-hidden="true"><g transform="rotate(-28 12 12)"><rect x="2.5" y="6.8" width="19" height="4.8" rx="2.4" fill="#A3622F"/><rect x="2.5" y="12.4" width="19" height="4.8" rx="2.4" fill="#87492A"/><path d="M5 9.2h14M5 14.8h14" stroke="#D49A62" stroke-width=".9" stroke-linecap="round"/><circle cx="4.9" cy="9.2" r="1.2" fill="none" stroke="#D49A62" stroke-width=".8"/><circle cx="4.9" cy="14.8" r="1.2" fill="none" stroke="#D49A62" stroke-width=".8"/></g></svg>',
+  saffron:'<svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" aria-hidden="true"><path d="M12 21C11.5 15 8.5 10 5 4" stroke="#D2421F" stroke-width="1.8"/><path d="M12 21C12.3 14 12 9 12.5 3" stroke="#C7381B" stroke-width="1.8"/><path d="M12 21C13 15 15.5 10 19.5 5" stroke="#DA4B22" stroke-width="1.8"/><circle cx="5" cy="4" r="1.6" fill="#F2A22E"/><circle cx="12.5" cy="3" r="1.6" fill="#F2A22E"/><circle cx="19.5" cy="5" r="1.6" fill="#F2A22E"/></svg>',
+  clove:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.9 10h2.2l-.5 11.5a.6.6 0 0 1-1.2 0z" fill="#6B3A22"/><circle cx="9.4" cy="7.4" r="2.3" fill="#8C4E2C"/><circle cx="14.6" cy="7.4" r="2.3" fill="#8C4E2C"/><circle cx="12" cy="4.9" r="2.3" fill="#8C4E2C"/><circle cx="12" cy="7.2" r="1.9" fill="#B06B3E"/></svg>'
+};
+const noteIcon = n => {
+  const s = n.toLowerCase(); const hit = NOTE_ICONS.find(([terms]) => terms.some(t => s.includes(t)));
+  const ic = hit ? hit[1] : '•';
+  return ic.startsWith('svg:') ? SPICE_SVG[ic.slice(4)] : ic;
+};
 const dots = n => '●'.repeat(n) + '○'.repeat(3-n);
 const POP = {5:'Icon',4:'Cult favorite',3:'Connoisseur pick'};
 function card(p){
@@ -448,11 +744,13 @@ function card(p){
       <p class="fam">${fam.group} · ${fam.name}</p><p class="pos">${String(p.f).padStart(2,'0')}/12</p>
     </div>
     <div class="body">
-      <div><p class="house">${esc(p.h)}</p><h3 class="name">${esc(p.n)}</h3></div>
-      <div class="notes">${p.notes.map(n => `<span class="note${hitGroups.length && noteHit(n,hitGroups) ? ' hit' : ''}">${esc(n)}</span>`).join('')}</div>
+      <div><p class="house">${esc(p.h)}${p.cat === 'clone' ? '<span class="badge">Clone</span>' : ''}</p><h3 class="name">${esc(p.n)}</h3>
+        ${p.alt ? `<p class="insp">Inspired by <b>${esc(p.alt)}</b>${p.orig ? ` · <button type="button" class="linkish" data-twin="${p.orig.id}">Compare with original</button>` : ''}</p>` : ''}
+        ${p.clones ? `<p class="insp">${p.clones.length} ${p.clones.length === 1 ? 'clone' : 'clones'} in this list · <button type="button" class="linkish" data-twin="${p.id}">See ${p.clones.length === 1 ? 'it' : 'them'}</button></p>` : ''}</div>
+      <div class="notes">${p.notes.map(n => `<span class="note${hitGroups.length && noteHit(n,hitGroups) ? ' hit' : ''}"><span class="ni" aria-hidden="true">${noteIcon(n)}</span>${esc(n)}</span>`).join('')}</div>
       <div class="tags">${p.mood.map(m => `<span>${LABEL.mood[m]}</span>`).join('')}</div>
       <dl class="meta">
-        <div><dt>Popularity</dt><dd>${POP[p.pop]}</dd></div>
+        <div><dt>Popularity</dt><dd>${p.src === 'brand' ? 'Not yet rated' : POP[p.pop]}</dd></div>
         <div><dt>Budget</dt><dd>${'$'.repeat(p.price)} <span style="color:var(--muted);font-weight:500">${LABEL.price[p.price]}</span></dd></div>
         <div><dt>Strength</dt><dd><span class="dots" aria-hidden="true">${dots(p.int)}</span> ${LABEL.int[p.int]}</dd></div>
         <div><dt>Lasts</dt><dd><span class="dots" aria-hidden="true">${dots(p.lon)}</span> ${LABEL.lon[p.lon]}</dd></div>
@@ -460,7 +758,7 @@ function card(p){
         <div><dt>Season · time</dt><dd>${p.sea.length===4 ? 'Year-round' : p.sea.map(s=>LABEL.sea[s]).join(', ')} · ${p.time.map(t=>LABEL.time[t]).join(' & ')}</dd></div>
       </dl>
       <div class="card-foot">
-        <span class="why">${reasons.length ? 'Matches: ' + esc(reasons.join(', ')) : esc(LABEL.g[p.g])}</span>
+        <span class="why">${reasons.length ? 'Matches: ' + esc(reasons.join(', ')) : p.src === 'brand' ? 'Notes from brand listing' : esc(LABEL.g[p.g])}</span>
         <button type="button" class="more" data-like="${p.f}">More like this</button>
       </div>
     </div>
@@ -472,10 +770,19 @@ function renderResults(){
   const act = [];
   DIMS.forEach(d => state.sel[d.key].forEach(v => act.push(`<button type="button" class="chip" data-dim="${d.key}" data-val="${esc(v)}" aria-label="Remove ${esc(LABEL[d.key][v])}">${esc(LABEL[d.key][v])}</button>`)));
   if (state.q) act.push(`<button type="button" class="chip" data-clearq="1" aria-label="Clear search">“${esc(state.q)}”</button>`);
+  if (state.twin != null) act.push(`<button type="button" class="chip" data-cleartwin="1" aria-label="Show everything again">${esc(P[state.twin].n)} &amp; its clones</button>`);
+  renderSeg();
   $('#active').innerHTML = act.join('');
   $('#grid').innerHTML = list.length ? list.map(card).join('') :
     `<div class="empty"><h3>Nothing fits every filter</h3><p>Remove one of the filters above, or use Clear all to start over.</p></div>`;
   const n = act.length; $('#toggleFilters').textContent = n ? `Show (${n})` : 'Show';
+}
+function renderSeg(){
+  const saved = state.cat; const n = {};
+  ['all','designer','clone'].forEach(c => { state.cat = c; n[c] = P.filter(matches).length; });
+  state.cat = saved;
+  $('#catSeg').innerHTML = [['all','All perfumes'],['designer','Designer perfumes'],['clone','Perfume clones']]
+    .map(([c,l]) => `<button type="button" data-cat="${c}" aria-pressed="${state.cat===c}">${l}<span>${n[c]}</span></button>`).join('');
 }
 function render(){ renderFilters(); renderResults(); }
 
@@ -484,9 +791,19 @@ document.addEventListener('click', e => {
   const chip = e.target.closest('[data-dim]');
   if (chip){ const s = state.sel[chip.dataset.dim], v = chip.dataset.val; s.has(v) ? s.delete(v) : s.add(v); render(); return; }
   if (e.target.closest('[data-clearq]')){ state.q=''; $('#q').value=''; render(); return; }
+  const cat = e.target.closest('[data-cat]');
+  if (cat){ state.cat = cat.dataset.cat; render(); return; }
+  if (e.target.closest('[data-cleartwin]')){ state.twin = null; render(); return; }
+  const twin = e.target.closest('[data-twin]');
+  if (twin){
+    DIMS.forEach(d=>state.sel[d.key].clear()); state.q=''; $('#q').value='';
+    state.twin = +twin.dataset.twin; state.cat = 'all'; state.sort = 'pop'; $('#sort').value = 'pop'; render();
+    document.querySelector('.resultbar').scrollIntoView({behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block:'start'});
+    return;
+  }
   const like = e.target.closest('[data-like]');
   if (like){
-    const f = +like.dataset.like; DIMS.forEach(d=>state.sel[d.key].clear()); state.q=''; $('#q').value='';
+    const f = +like.dataset.like; DIMS.forEach(d=>state.sel[d.key].clear()); state.q=''; $('#q').value=''; state.twin = null;
     [f-1,f,f+1].map(x => ((x-1+12)%12)+1).forEach(x => state.sel.fam.add(String(x)));
     state.sort='wheel'; $('#sort').value='wheel'; render();
     document.querySelector('.resultbar').scrollIntoView({behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block:'start'});
@@ -495,7 +812,7 @@ document.addEventListener('click', e => {
 });
 $('#q').addEventListener('input', e => { state.q = e.target.value.trim(); render(); });
 $('#sort').addEventListener('change', e => { state.sort = e.target.value; renderResults(); });
-$('#clearAll').addEventListener('click', () => { DIMS.forEach(d=>state.sel[d.key].clear()); state.q=''; $('#q').value=''; render(); });
+$('#clearAll').addEventListener('click', () => { DIMS.forEach(d=>state.sel[d.key].clear()); state.q=''; $('#q').value=''; state.cat='all'; state.twin=null; render(); });
 $('#toggleFilters').addEventListener('click', () => {
   const r = $('#rail'); const open = !r.hasAttribute('data-open');
   open ? r.setAttribute('data-open','') : r.removeAttribute('data-open');
@@ -503,7 +820,7 @@ $('#toggleFilters').addEventListener('click', () => {
 });
 PRESETS.forEach(p => {
   const b = document.createElement('button'); b.type='button'; b.className='preset'; b.textContent=p.label;
-  b.addEventListener('click', () => { DIMS.forEach(d=>state.sel[d.key].clear()); Object.entries(p.set).forEach(([k,vs]) => vs.forEach(v=>state.sel[k].add(v))); render(); });
+  b.addEventListener('click', () => { DIMS.forEach(d=>state.sel[d.key].clear()); state.twin = null; Object.entries(p.set).forEach(([k,vs]) => vs.forEach(v=>state.sel[k].add(v))); render(); });
   $('#presets').appendChild(b);
 });
 
